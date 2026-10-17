@@ -1,0 +1,183 @@
+/**
+ * APEX Car Rental Management System
+ * Simulated Real-Time Vehicle Tracking & Telemetry HUD Styles
+ */
+
+.tracking-page-wrap {
+    padding: 30px 0;
+}
+
+.simulation-disclaimer-banner {
+    background: #0B132B;
+    border: 1px solid #1E293B;
+    border-left: 4px solid var(--apex-primary);
+    padding: 12px 18px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #F8FAFC;
+    font-size: 13px;
+}
+
+.sim-tag {
+    background: var(--apex-primary);
+    color: #FFFFFF;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    margin-right: 10px;
+}
+
+.tracking-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+}
+
+.map-container-wrap {
+    background: #0B132B;
+    border: 1px solid var(--apex-border-crisp);
+    border-radius: var(--apex-radius);
+    height: 600px;
+    position: relative;
+    overflow: hidden;
+}
+
+#tracking-map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Floating Telemetry HUD Overlay */
+.map-hud-overlay {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 1000;
+    background: rgba(11, 19, 43, 0.92);
+    border: 1px solid #334155;
+    padding: 16px 20px;
+    border-radius: var(--apex-radius);
+    color: #FFFFFF;
+    min-width: 280px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.hud-vehicle-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.hud-plate-tag {
+    font-family: monospace;
+    font-size: 12px;
+    background: #1E293B;
+    border: 1px solid #475569;
+    padding: 2px 6px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.hud-metrics-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.hud-stat-box {
+    background: #16203B;
+    border: 1px solid #334155;
+    padding: 8px 12px;
+    border-radius: 2px;
+}
+
+.hud-stat-label {
+    font-size: 11px;
+    color: #94A3B8;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.hud-stat-val {
+    font-size: 22px;
+    font-weight: 800;
+    color: #38BDF8;
+    font-family: monospace;
+    line-height: 1.1;
+}
+
+.hud-stat-unit {
+    font-size: 11px;
+    color: #94A3B8;
+    margin-left: 2px;
+}
+
+/* Telemetry Sidebar Details */
+.tracking-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.telemetry-card {
+    background: #FFFFFF;
+    border: 1px solid var(--apex-border-crisp);
+    border-radius: var(--apex-radius);
+    padding: 20px;
+}
+
+.telemetry-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--apex-text-main);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--apex-border-subtle);
+}
+
+.progress-track {
+    background: #E2E8F0;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 8px 0 16px;
+}
+
+.progress-bar-fill {
+    background: var(--apex-primary);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.fuel-gauge-fill {
+    background: var(--apex-success);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.fuel-gauge-fill.low {
+    background: var(--apex-danger);
+}
+
+/* Simulation Controls */
+.sim-controls-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+    .tracking-layout-grid {
+        grid-template-columns: 1fr;
+    }
+    .map-container-wrap {
+        height: 420px;
+    }
+}
