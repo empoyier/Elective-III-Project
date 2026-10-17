@@ -5,10 +5,10 @@
  */
 
 :root {
-    --apex-primary: #0078D7;
-    --apex-primary-hover: #005A9E;
-    --apex-primary-light: #EBF3FB;
-    --apex-primary-focus: #4AA3DF;
+    --apex-primary: #1877F2;
+    --apex-primary-hover: #1877F2;
+    --apex-primary-light: #1877F2;
+    --apex-primary-focus: #1877F2;
 
     --apex-dark-navy: #0B132B;
     --apex-slate-dark: #1E293B;
@@ -43,7 +43,7 @@
 
 body {
     font-family: var(--apex-font-sans);
-    background-color: var(--apex-bg-canvas);
+    background-color: #FFFFFF;
     color: var(--apex-text-main);
     line-height: 1.5;
     font-size: 15px;
@@ -51,13 +51,13 @@ body {
 }
 
 a {
-    color: var(--apex-primary);
+    color: var(--apex-text-muted);
     text-decoration: none;
     transition: color 0.15s ease;
 }
 
 a:hover {
-    color: var(--apex-primary-hover);
+    color: var(--apex-text-secondary);
 }
 
 img {
@@ -155,8 +155,8 @@ img {
 
 /* Navbar */
 .site-nav {
-    background-color: var(--apex-dark-navy);
-    border-bottom: 2px solid var(--apex-primary);
+    background-color: var(--apex-bg-canvas);
+    border-bottom: 2px solid var(--apex-border-crisp);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -178,8 +178,8 @@ img {
 }
 
 .brand-badge {
-    background-color: var(--apex-primary);
-    color: #FFFFFF;
+    background-color: var(--apex-bg-canvas);
+    color: var(--apex-text-main);
     font-weight: 900;
     letter-spacing: 1.5px;
     font-size: 16px;
@@ -326,8 +326,7 @@ img {
 
 .form-control:focus {
     outline: none;
-    border-color: var(--apex-primary);
-    box-shadow: 0 0 0 1px var(--apex-primary);
+    border-color: var(--apex-border-crisp);
 }
 
 /* Alerts */
@@ -391,9 +390,9 @@ img {
 
 /* Site Footer */
 .site-footer {
-    background-color: var(--apex-dark-navy);
-    border-top: 1px solid #1E293B;
-    color: #94A3B8;
+    background-color: var(--apex-primary);
+    border-top: 1px solid var(--apex-primary);
+    color: #FFFFFF;
     padding: 48px 0 24px;
     margin-top: 60px;
     font-size: 14px;
@@ -425,7 +424,7 @@ img {
 }
 
 .footer-col ul li a {
-    color: #94A3B8;
+    color: #FFFFFF;
 }
 
 .footer-col ul li a:hover {

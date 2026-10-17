@@ -72,15 +72,9 @@ require_once __DIR__ . '/templates/header.php';
             <div style="margin-top:24px; background:#F8FAFC; border:1px solid var(--apex-border-crisp); padding:16px; border-radius:4px;">
                 <h4 style="font-size:12px; font-weight:700; color:var(--apex-text-muted); text-transform:uppercase; margin-bottom:10px;">One-Click Demo Accounts</h4>
                 <div style="display:flex; flex-direction:column; gap:8px;">
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('admin@apexrentals.ph', 'admin123')">
-                        👑 Administrator (admin@apexrentals.ph)
-                    </button>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('staff@apexrentals.ph', 'staff123')">
-                        🚗 Fleet Staff (staff@apexrentals.ph)
-                    </button>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('customer@example.ph', 'customer123')">
-                        👤 Customer Juan (customer@example.ph)
-                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('admin@apexrentals.ph', 'admin123')">Administrator (admin@apexrentals.ph)</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('staff@apexrentals.ph', 'staff123')">Fleet Staff (staff@apexrentals.ph)</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('customer@example.ph', 'customer123')">Customer Juan (customer@example.ph)</button>
                 </div>
             </div>
         </div>

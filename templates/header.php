@@ -36,10 +36,9 @@ $activeNav = $activeNav ?? '';
         </a>
 
         <ul class="nav-links">
-            <li><a href="<?= apex_url('') ?>" class="<?= $activeNav === 'home' ? 'active' : '' ?>">Home</a></li>
-            <li><a href="<?= apex_url('fleet.php') ?>" class="<?= $activeNav === 'fleet' ? 'active' : '' ?>">Fleet Catalog</a></li>
+            <li><a href="<?= apex_url('fleet.php') ?>" class="<?= $activeNav === 'fleet' ? 'active' : '' ?>">Select Vehicle</a></li>
             <li><a href="<?= apex_url('track.php') ?>" class="<?= $activeNav === 'tracking' ? 'active' : '' ?>">Simulated Tracking</a></li>
-            <li><a href="<?= apex_url('my-bookings.php') ?>" class="<?= $activeNav === 'bookings' ? 'active' : '' ?>">My Bookings</a></li>
+            <li><a href="<?= apex_url('my-bookings.php') ?>" class="<?= $activeNav === 'bookings' ? 'active' : '' ?>">My Reservations</a></li>
             <?php if (Auth::isStaff()): ?>
                 <li><a href="<?= apex_url('admin/index.php') ?>" style="color:#38BDF8; font-weight:700;">Admin Dashboard &rarr;</a></li>
             <?php endif; ?>

@@ -16,12 +16,7 @@ define('APP_TAGLINE', 'Reliable Vehicle Rental & Simulated Fleet Tracking in the
 define('APP_CURRENCY', '₱');
 define('APP_CURRENCY_CODE', 'PHP');
 define('APP_LOCATIONS', [
-    'NAIA Terminal 3 (Pasay / Paranaque)',
-    'BGC High Street Hub (Taguig City)',
-    'Ayala Center Hub (Makati CBD)',
-    'Quezon City North Hub (Trinoma/SM North)',
-    'Clark International Airport Hub (Pampanga)',
-    'Mactan-Cebu International Airport Hub (Lapu-Lapu City)'
+    'Iba, Zambales Hub',
 ]);
 
 /**

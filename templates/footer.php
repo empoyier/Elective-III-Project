@@ -13,10 +13,10 @@
                 <span class="brand-badge">APEX</span>
                 <span style="font-size:16px; font-weight:700; color:#FFFFFF;">Car Rental Services</span>
             </div>
-            <p style="font-size:13px; line-height:1.6; color:#94A3B8; margin-bottom:14px;">
+            <p style="font-size:13px; line-height:1.6; color:#FFFFFF; margin-bottom:14px;">
                 A web-based car rental management system delivering streamlined vehicle reservations, date-based availability conflict prevention, and simulated real-time GPS vehicle tracking across the Philippines.
             </p>
-            <p style="font-size:12px; color:#64748B;">
+            <p style="font-size:12px; color:#FFFFFF;">
                 Telemetry Notice: All map movement and telemetry values (speed, distance, fuel) are generated via route simulation and do not require physical GPS hardware.
             </p>
         </div>
@@ -47,8 +47,8 @@
 
         <div class="footer-col">
             <h4>Philippine Hubs</h4>
-            <p style="font-size:13px; margin-bottom:6px; color:#CBD5E1;"><strong>Metro Manila:</strong> NAIA T3, BGC, Makati CBD</p>
-            <p style="font-size:13px; margin-bottom:6px; color:#CBD5E1;"><strong>Central Luzon:</strong> Clark Airport Hub (CRK)</p>
+            <p style="font-size:13px; margin-bottom:6px; color:#CBD5E1;"><strong>Iba, Zambales Hub:</strong> Main Rental Hub</p>
+            
             <p style="font-size:13px; margin-bottom:12px; color:#CBD5E1;"><strong>Visayas:</strong> Mactan-Cebu Airport Hub (MCIA)</p>
             <p style="font-size:12px; color:#64748B;">
                 Hotline: +63 (02) 8800-APEX<br>
