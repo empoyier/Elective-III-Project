@@ -19,7 +19,7 @@ require_once __DIR__ . '/nav.php';
 <div class="simulation-disclaimer-banner" style="margin-bottom:20px;">
     <div>
         <span class="sim-tag">FLEET DISPATCH HUD</span>
-        <strong>DISPATCH SIMULATION NOTICE:</strong> Monitoring <?= count($activeSessions) ?> active rental vehicle(s) currently traversing Philippine expressway corridors.
+        <strong>DISPATCH SIMULATION NOTICE:</strong> Monitoring <?= count($activeSessions) ?> active rental vehicle(s) traversing Zambales transit corridors (Main Hub: Iba, Zambales).
     </div>
 </div>
 
@@ -81,8 +81,8 @@ const activeSessions = <?= json_encode($activeSessions) ?>;
 const feedUrl = "<?= apex_url('api/tracking-feed.php') ?>";
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Center initially on Metro Manila
-    masterMap = L.map('master-fleet-map').setView([14.5507, 121.0300], 11);
+    // Center initially on Iba, Zambales Main Hub
+    masterMap = L.map('master-fleet-map').setView([15.3265, 119.9805], 12);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,

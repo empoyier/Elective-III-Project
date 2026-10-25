@@ -20,6 +20,7 @@ $activeAdminNav = $activeAdminNav ?? 'dashboard';
     
     <link rel="stylesheet" href="<?= apex_url('assets/css/apex-theme.css') ?>">
     <link rel="stylesheet" href="<?= apex_url('assets/css/admin.css') ?>">
+    <link rel="stylesheet" href="<?= apex_url('assets/css/admin-dark.css') ?>">
     <?php if (!empty($includeMap)): ?>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <?php endif; ?>

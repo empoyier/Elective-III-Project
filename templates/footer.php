@@ -46,12 +46,11 @@
         </div>
 
         <div class="footer-col">
-            <h4>Philippine Hubs</h4>
-            <p style="font-size:13px; margin-bottom:6px; color:#CBD5E1;"><strong>Iba, Zambales Hub:</strong> Main Rental Hub</p>
-            
-            <p style="font-size:13px; margin-bottom:12px; color:#CBD5E1;"><strong>Visayas:</strong> Mactan-Cebu Airport Hub (MCIA)</p>
-            <p style="font-size:12px; color:#64748B;">
-                Hotline: +63 (02) 8800-APEX<br>
+            <h4>Operations Hub</h4>
+            <p style="font-size:13px; margin-bottom:6px; color:#CBD5E1;"><strong>Main Operations Hub:</strong> Iba, Zambales</p>
+            <p style="font-size:13px; margin-bottom:12px; color:#CBD5E1;"><strong>Coverage:</strong> Zambales Provincial Corridors & Coastal Highways</p>
+            <p style="font-size:12px; color:#CBD5E1;">
+                Hotline: +63 (047) 800-APEX<br>
                 Email: reservations@apexrentals.ph
             </p>
         </div>

@@ -155,11 +155,17 @@ img {
 
 /* Navbar */
 .site-nav {
-    background-color: var(--apex-bg-canvas);
-    border-bottom: 2px solid var(--apex-border-crisp);
+    background-color: var(--apex-primary);
+    border-bottom: 2px solid var(--apex-primary);
     position: sticky;
     top: 0;
     z-index: 1000;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.site-nav.nav-hidden {
+    transform: translateY(-100%);
 }
 
 .nav-inner {
@@ -178,8 +184,8 @@ img {
 }
 
 .brand-badge {
-    background-color: var(--apex-bg-canvas);
-    color: var(--apex-text-main);
+    background-color: #FFFFFF;
+    color: var(--apex-primary);
     font-weight: 900;
     letter-spacing: 1.5px;
     font-size: 16px;
@@ -202,15 +208,17 @@ img {
 }
 
 .nav-links a {
-    color: #CBD5E1;
+    color: #FFFFFF;
     font-weight: 500;
     font-size: 14px;
     padding: 8px 0;
     position: relative;
+    opacity: 0.85;
 }
 
 .nav-links a:hover, .nav-links a.active {
     color: #FFFFFF;
+    opacity: 1;
 }
 
 .nav-links a.active::after {
@@ -220,7 +228,7 @@ img {
     left: 0;
     right: 0;
     height: 2px;
-    background-color: var(--apex-primary);
+    background-color: #FFFFFF;
 }
 
 .nav-actions {
@@ -265,9 +273,9 @@ img {
 }
 
 .badge-sim {
-    background-color: var(--apex-dark-navy);
-    color: #93C5FD;
-    border: 1px solid #3B82F6;
+    background-color: #F1F5F9;
+    color: var(--apex-text-secondary);
+    border: 1px solid var(--apex-border-crisp);
     font-family: monospace;
     font-weight: 700;
 }

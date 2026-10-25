@@ -45,7 +45,7 @@ require_once __DIR__ . '/templates/header.php';
                 Simulated Real-Time Fleet Tracking
             </h1>
             <p style="font-size:13px; color:var(--apex-text-muted);">
-                Mathematical waypoint telemetry along predefined Philippine expressways &bull; Operating without physical GPS hardware
+                Mathematical waypoint telemetry along Zambales transit corridors (Main Hub: Iba, Zambales) &bull; Operating without physical GPS hardware
             </p>
         </div>
         <div>
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const carIcon = L.divIcon({
         className: 'apex-vehicle-marker',
         html: `
-            <div style="width:36px; height:36px; background:#0078D7; border:2px solid #FFFFFF; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:#FFFFFF;">
+            <div style="width:36px; height:36px; background:#1877F2; border:2px solid #FFFFFF; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#FFFFFF;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="11" width="18" height="8" rx="2"/>
                     <path d="M5 11l2-5h10l2 5"/>

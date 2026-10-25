@@ -37,7 +37,7 @@ require_once __DIR__ . '/templates/header.php';
 ?>
 
 <!-- Clean Top Header (No Eyebrows) -->
-<div style="background:#FFFFFF; border-bottom:1px solid var(--apex-border-crisp); padding:28px 0;">
+<div style="background:#FFFFFF; padding:28px 0;">
     <div class="container-wide">
         <h1 style="font-size:32px; font-weight:800; color:var(--apex-text-main); margin-bottom:6px; letter-spacing:-0.5px;">
             Select Your Vehicle
@@ -62,7 +62,7 @@ require_once __DIR__ . '/templates/header.php';
 </div>
 
 <!-- Compact Horizontal Date & Schedule Filter Bar -->
-<div style="background:#F8FAFC; border-bottom:1px solid var(--apex-border-crisp); padding:16px 0;">
+<div style="background:#FFFFFF; padding:16px 0;">
     <div class="container-wide">
         <form action="<?= apex_url('fleet.php') ?>" method="GET" style="display:flex; flex-wrap:wrap; align-items:flex-end; gap:16px;">
             <?php if ($selectedCategory): ?>

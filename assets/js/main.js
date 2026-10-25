@@ -32,6 +32,22 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => el.remove(), 400);
         }, 5000);
     });
+    // 3. Hide navbar on scroll down, show on scroll up
+    const nav = document.querySelector('.site-nav');
+    if (nav) {
+        let lastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            if (currentScrollY > lastScrollY && currentScrollY > 80) {
+                // Scrolling down — hide navbar
+                nav.classList.add('nav-hidden');
+            } else {
+                // Scrolling up — show navbar
+                nav.classList.remove('nav-hidden');
+            }
+            lastScrollY = currentScrollY;
+        }, { passive: true });
+    }
 });
 
 /**

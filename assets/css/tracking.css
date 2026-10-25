@@ -8,15 +8,15 @@
 }
 
 .simulation-disclaimer-banner {
-    background: #0B132B;
-    border: 1px solid #1E293B;
+    background: #FFFFFF;
+    border: 1px solid var(--apex-border-crisp);
     border-left: 4px solid var(--apex-primary);
     padding: 12px 18px;
     margin-bottom: 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: #F8FAFC;
+    color: var(--apex-text-main);
     font-size: 13px;
 }
 
@@ -38,7 +38,7 @@
 }
 
 .map-container-wrap {
-    background: #0B132B;
+    background: #F1F5F9;
     border: 1px solid var(--apex-border-crisp);
     border-radius: var(--apex-radius);
     height: 600px;
@@ -51,19 +51,17 @@
     height: 100%;
 }
 
-/* Floating Telemetry HUD Overlay */
 .map-hud-overlay {
     position: absolute;
     top: 16px;
     left: 16px;
     z-index: 1000;
-    background: rgba(11, 19, 43, 0.92);
-    border: 1px solid #334155;
+    background: #FFFFFF;
+    border: 1px solid var(--apex-border-crisp);
     padding: 16px 20px;
     border-radius: var(--apex-radius);
-    color: #FFFFFF;
+    color: var(--apex-text-main);
     min-width: 280px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .hud-vehicle-title {
@@ -75,8 +73,8 @@
 .hud-plate-tag {
     font-family: monospace;
     font-size: 12px;
-    background: #1E293B;
-    border: 1px solid #475569;
+    background: #F1F5F9;
+    border: 1px solid var(--apex-border-crisp);
     padding: 2px 6px;
     border-radius: 2px;
     display: inline-block;
@@ -91,15 +89,15 @@
 }
 
 .hud-stat-box {
-    background: #16203B;
-    border: 1px solid #334155;
+    background: #F8FAFC;
+    border: 1px solid var(--apex-border-crisp);
     padding: 8px 12px;
     border-radius: 2px;
 }
 
 .hud-stat-label {
     font-size: 11px;
-    color: #94A3B8;
+    color: var(--apex-text-muted);
     text-transform: uppercase;
     font-weight: 600;
 }
@@ -107,14 +105,14 @@
 .hud-stat-val {
     font-size: 22px;
     font-weight: 800;
-    color: #38BDF8;
+    color: var(--apex-text-main);
     font-family: monospace;
     line-height: 1.1;
 }
 
 .hud-stat-unit {
     font-size: 11px;
-    color: #94A3B8;
+    color: var(--apex-text-muted);
     margin-left: 2px;
 }
 

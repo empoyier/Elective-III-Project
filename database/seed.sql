@@ -160,27 +160,27 @@ INSERT INTO `vehicles` (`id`, `category_id`, `brand`, `model`, `year`, `license_
 'Retro-futuristic World Car of the Year built on an 800V ultra-fast charging platform with sliding universal island console and pixel LED optics.', 
 '["800V Ultra-Fast Charging", "Sliding Universal Island Console", "Relaxation Comfort Seats", "Parametric Pixel Lights", "V2L Power Supply"]');
 
--- 5. Insert Realistic Philippine Waypoint GPS Tracking Routes
+-- 5. Insert Realistic Philippine Waypoint GPS Tracking Routes (Hub: Iba, Zambales)
 INSERT INTO `tracking_routes` (`id`, `name`, `description`, `start_location`, `end_location`, `total_distance_km`, `waypoints_json`) VALUES
-(1, 'Metro Manila Expressway Circuit (NAIA T3 to BGC)', 
-'Traverses NAIA Terminal 3 Airport Expressway, Skyway Stage 3 Elevated Highway, Makati CBD Ayala Avenue, and Bonifacio High Street in Taguig.',
-'NAIA Terminal 3 Airport, Pasay', 'Bonifacio High Street, BGC Taguig', 18.5,
-'[[14.5208, 121.0152, 40], [14.5230, 121.0190, 60], [14.5262, 121.0250, 75], [14.5330, 121.0220, 80], [14.5420, 121.0185, 80], [14.5505, 121.0140, 70], [14.5570, 121.0110, 50], [14.5560, 121.0190, 45], [14.5547, 121.0244, 40], [14.5530, 121.0320, 40], [14.5555, 121.0410, 60], [14.5520, 121.0460, 45], [14.5507, 121.0509, 30]]'),
+(1, 'Iba Central Hub to Botolan Coastal Highway & Bucao Bridge', 
+'Departs from APEX Main Hub in Iba Town Center south along the Govic / Olongapo-Bugallon Highway, passing the Zambales Provincial Capitol and sports facilities, crossing the scenic Bucao River Bridge into Botolan.',
+'APEX Main Hub, Iba, Zambales', 'Botolan Municipal Plaza, Zambales', 16.4,
+'[[15.3265, 119.9805, 35], [15.3210, 119.9840, 50], [15.3120, 119.9910, 65], [15.3040, 119.9995, 70], [15.2965, 120.0120, 60], [15.2910, 120.0185, 55], [15.2865, 120.0240, 45], [15.2840, 120.0265, 35], [15.2865, 120.0240, 45], [15.2965, 120.0120, 60], [15.3120, 119.9910, 70], [15.3265, 119.9805, 35]]'),
 
-(2, 'Tagaytay Scenic Ridge Highway (SLEX Santa Rosa to Taal Overlook)', 
-'Climbs from the South Luzon Expressway (SLEX) through Nuvali Santa Rosa and the rolling cool hills of Silang up to the Tagaytay Ridge.',
-'SLEX Santa Rosa Exit Toll Plaza', 'Tagaytay Ridge View Overlook', 36.2,
-'[[14.3015, 121.0988, 80], [14.2820, 121.0790, 70], [14.2580, 121.0550, 60], [14.2389, 121.0315, 60], [14.2120, 121.0080, 55], [14.1850, 120.9850, 50], [14.1560, 120.9710, 45], [14.1320, 120.9660, 40], [14.1153, 120.9620, 40], [14.1040, 120.9500, 45], [14.0954, 120.9328, 35]]'),
+(2, 'Iba Central Hub to Palauig Scenic Coastal Highway', 
+'Scenic northbound coastal transit along the Zambales National Highway from Iba Central Hub through Pangolingan and Amungan beachside corridors up to Palauig Poblacion.',
+'APEX Main Hub, Iba, Zambales', 'Palauig Town Overlook, Zambales', 22.8,
+'[[15.3265, 119.9805, 35], [15.3340, 119.9780, 50], [15.3480, 119.9720, 65], [15.3650, 119.9650, 75], [15.3850, 119.9540, 80], [15.4050, 119.9380, 75], [15.4220, 119.9200, 60], [15.4380, 119.9050, 40], [15.4220, 119.9200, 60], [15.3850, 119.9540, 75], [15.3480, 119.9720, 65], [15.3265, 119.9805, 35]]'),
 
-(3, 'Cebu Coastal & CCLEX Expressway Express', 
-'Scenic coastal expressway run connecting Mactan-Cebu International Airport via the majestic Cebu-Cordova Link Expressway (CCLEX) to Cebu SRP.',
-'Mactan-Cebu International Airport (MCIA)', 'Cebu South Road Properties (SRP)', 22.0,
-'[[10.3115, 123.9794, 50], [10.2980, 123.9650, 60], [10.2820, 123.9520, 65], [10.2650, 123.9450, 70], [10.2710, 123.9280, 80], [10.2798, 123.9054, 80], [10.2820, 123.8910, 70], [10.2831, 123.8765, 60], [10.2818, 123.8820, 40]]');
+(3, 'Iba Town Center, Airport & Beachfront Resort Circuit', 
+'Loop connecting the Zambales Provincial Capitol, Govic Highway, Iba Community Airport runway corridor, and the Bangantalingan coastal resort strip.',
+'APEX Main Hub, Iba, Zambales', 'Iba Airport & Bangantalingan Beach Strip', 11.2,
+'[[15.3265, 119.9805, 30], [15.3290, 119.9770, 40], [15.3280, 119.9690, 45], [15.3269, 119.9655, 40], [15.3320, 119.9640, 45], [15.3410, 119.9660, 50], [15.3380, 119.9730, 45], [15.3265, 119.9805, 30]]');
 
 -- 6. Insert Sample Bookings for Demonstration of All Lifecycle States
 -- Booking 1: ACTIVE (Out on Rental) with Active Simulated Tracking Session!
 INSERT INTO `bookings` (`id`, `booking_ref`, `user_id`, `vehicle_id`, `pickup_datetime`, `return_datetime`, `pickup_location`, `return_location`, `total_days`, `daily_rate`, `base_amount`, `addons_amount`, `tax_amount`, `total_amount`, `deposit_amount`, `status`, `customer_notes`) VALUES
-(1, 'APX-2026-8801', 3, 7, '2026-10-16 09:00:00', '2026-10-20 18:00:00', 'BGC High Street Hub (Taguig City)', 'NAIA Terminal 3 (Pasay / Paranaque)', 5, 3800.00, 19000.00, 2250.00, 0.00, 21250.00, 5000.00, 'out_on_rental', 'Family weekend trip to Batangas and Tagaytay.');
+(1, 'APX-2026-8801', 3, 7, '2026-10-16 09:00:00', '2026-10-20 18:00:00', 'Iba, Zambales Hub', 'Iba, Zambales Hub', 5, 3800.00, 19000.00, 2250.00, 0.00, 21250.00, 5000.00, 'out_on_rental', 'Coastal road trip to Botolan and Zambales beaches.');
 
 INSERT INTO `booking_addons` (`booking_id`, `addon_id`, `unit_price`, `quantity`, `subtotal`) VALUES
 (1, 1, 450.00, 5, 2250.00);
@@ -190,13 +190,13 @@ INSERT INTO `booking_status_logs` (`booking_id`, `changed_by_user_id`, `previous
 (1, 1, 'pending', 'approved', 'Staff confirmed reservation & license validity.'),
 (1, 2, 'approved', 'out_on_rental', 'Customer completed vehicle pickup inspection and dispatch.');
 
--- Active Tracking Session for Booking 1 (Fortuner currently on Tagaytay Route)
+-- Active Tracking Session for Booking 1 (Fortuner currently on Iba - Botolan Route)
 INSERT INTO `rental_tracking_sessions` (`booking_id`, `route_id`, `current_waypoint_index`, `current_lat`, `current_lng`, `current_speed`, `distance_traveled_km`, `fuel_level_pct`, `sim_status`) VALUES
-(1, 2, 4, 14.2120000, 121.0080000, 58.5, 14.8, 88.5, 'active');
+(1, 1, 3, 15.3040000, 119.9995000, 68.0, 6.2, 92.0, 'active');
 
 -- Booking 2: PENDING (Awaiting Admin Review)
 INSERT INTO `bookings` (`id`, `booking_ref`, `user_id`, `vehicle_id`, `pickup_datetime`, `return_datetime`, `pickup_location`, `return_location`, `total_days`, `daily_rate`, `base_amount`, `addons_amount`, `tax_amount`, `total_amount`, `deposit_amount`, `status`, `customer_notes`) VALUES
-(2, 'APX-2026-8802', 4, 4, '2026-10-22 10:00:00', '2026-10-25 10:00:00', 'Ayala Center Hub (Makati CBD)', 'Ayala Center Hub (Makati CBD)', 3, 3800.00, 11400.00, 1350.00, 0.00, 12750.00, 5000.00, 'pending', 'Executive corporate client visiting from Singapore.');
+(2, 'APX-2026-8802', 4, 4, '2026-10-22 10:00:00', '2026-10-25 10:00:00', 'Iba, Zambales Hub', 'Iba, Zambales Hub', 3, 3800.00, 11400.00, 1350.00, 0.00, 12750.00, 5000.00, 'pending', 'Executive corporate client visiting Zambales solar and provincial projects.');
 
 INSERT INTO `booking_addons` (`booking_id`, `addon_id`, `unit_price`, `quantity`, `subtotal`) VALUES
 (2, 1, 450.00, 3, 1350.00);
@@ -206,7 +206,7 @@ INSERT INTO `booking_status_logs` (`booking_id`, `changed_by_user_id`, `previous
 
 -- Booking 3: COMPLETED (Returned)
 INSERT INTO `bookings` (`id`, `booking_ref`, `user_id`, `vehicle_id`, `pickup_datetime`, `return_datetime`, `pickup_location`, `return_location`, `total_days`, `daily_rate`, `base_amount`, `addons_amount`, `tax_amount`, `total_amount`, `deposit_amount`, `status`, `customer_notes`) VALUES
-(3, 'APX-2026-8799', 3, 1, '2026-10-10 08:00:00', '2026-10-12 18:00:00', 'NAIA Terminal 3 (Pasay / Paranaque)', 'NAIA Terminal 3 (Pasay / Paranaque)', 3, 1800.00, 5400.00, 450.00, 0.00, 5850.00, 3000.00, 'returned', 'Short city transit.');
+(3, 'APX-2026-8799', 3, 1, '2026-10-10 08:00:00', '2026-10-12 18:00:00', 'Iba, Zambales Hub', 'Iba, Zambales Hub', 3, 1800.00, 5400.00, 450.00, 0.00, 5850.00, 3000.00, 'returned', 'Local Iba municipality transit.');
 
 INSERT INTO `return_inspections` (`booking_id`, `inspector_user_id`, `odometer_reading`, `fuel_level_returned`, `has_damage`, `damage_notes`, `additional_charges`) VALUES
 (3, 2, 12580, 100, 0, 'Vehicle returned in spotless condition. Full tank verified.', 0.00);

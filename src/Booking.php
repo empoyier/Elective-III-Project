@@ -360,7 +360,7 @@ class Booking {
                 $route = Database::fetchOne("SELECT * FROM `tracking_routes` ORDER BY RAND() LIMIT 1");
                 if ($route) {
                     $waypoints = json_decode($route['waypoints_json'], true) ?: [];
-                    $firstWp = $waypoints[0] ?? [14.5208, 121.0152, 40];
+                    $firstWp = $waypoints[0] ?? [15.3265, 119.9805, 40];
 
                     Database::query(
                         "INSERT INTO `rental_tracking_sessions` 

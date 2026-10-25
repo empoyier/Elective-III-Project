@@ -11,6 +11,7 @@ require_once __DIR__ . '/config/app.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="<?= apex_url('assets/images/favicon.png') ?>">
     <title>APEX Car Rental Services | Welcome</title>
     <link rel="stylesheet" href="<?= apex_url('assets/css/apex-theme.css') ?>">
     <style>
@@ -60,16 +61,12 @@ require_once __DIR__ . '/config/app.php';
             position: relative;
         }
 
-        .splash-brand-badge {
-            display: inline-block;
-            background-color: var(--apex-primary);
-            color: #FFFFFF;
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            padding: 6px 14px;
-            border-radius: 2px;
-            margin-bottom: 24px;
+        .splash-brand-logo {
+            display: block;
+            width: min(100%, 560px);
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 16px;
             align-self: flex-start;
         }
 
@@ -150,7 +147,7 @@ require_once __DIR__ . '/config/app.php';
                 height: auto;
             }
             .splash-media-half {
-                height: 340px;
+                height: 890px;
                 border-right: none;
                 border-bottom: 2px solid var(--apex-border-crisp);
             }
@@ -183,9 +180,7 @@ require_once __DIR__ . '/config/app.php';
 
     <!-- RIGHT HALF: Minimal Title, Tagline & "Get Started" Button (No Navbar) -->
     <div class="splash-content-half">
-        <div class="splash-brand-badge">APEX</div>
-
-        <h1 class="splash-title">APEX Car Rental Services</h1>
+        <img class="splash-brand-logo" src="<?= apex_url('assets/images/apex-brand-logo.png') ?>" alt="APEX Car Rental logo">
 
         <p class="splash-subtitle">
             Reliable, transparent vehicle rentals across Iba, Zambales. 

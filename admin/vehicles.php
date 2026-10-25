@@ -9,7 +9,7 @@ $activeAdminNav = "vehicles";
 
 require_once __DIR__ . '/../config/app.php';
 require_once __DIR__ . '/../src/Vehicle.php';
-
+ 
 $message = '';
 $messageType = 'info';
 
@@ -63,7 +63,7 @@ require_once __DIR__ . '/nav.php';
     <div class="alert alert-<?= $messageType ?>"><?= h($message) ?></div>
 <?php endif; ?>
 
-<div class="card">
+<div class="card glass-card">
     <div class="card-header">
         <span class="card-title">Fleet Inventory (<?= count($vehicles) ?> Vehicles)</span>
         <button type="button" class="btn btn-primary btn-sm" onclick="openAddModal()">
@@ -206,8 +206,8 @@ require_once __DIR__ . '/nav.php';
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Vehicle Photography URL *</label>
-                    <input type="url" name="image_url" class="form-control" required placeholder="https://images.unsplash.com/photo-...">
+                    <label class="form-label">Vehicle Image Path *</label>
+                    <input type="text" name="image_url" class="form-control" required placeholder="images/toyota_fortuner.jpg">
                 </div>
 
                 <div class="form-group">
