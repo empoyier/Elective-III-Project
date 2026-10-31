@@ -8,6 +8,7 @@
     <title>Vehicle Reservation Wizard | APEX</title>
     <link rel="stylesheet" href="assets/css/apex-theme.css">
     <link rel="stylesheet" href="assets/css/customer.css">
+    <script src="assets/js/vehicle-images.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-config.js"></script>
 </head>
@@ -320,7 +321,7 @@
                 addonsList = addRes.data || [];
 
                 // Update UI
-                document.getElementById('veh-img').src = currentVehicle.image_url;
+                document.getElementById('veh-img').src = getLocalVehicleImage(currentVehicle.brand, currentVehicle.model) || currentVehicle.image_url;
                 document.getElementById('veh-cat').textContent = currentVehicle.vehicle_categories?.name || 'Standard';
                 document.getElementById('veh-title').textContent = `${currentVehicle.brand} ${currentVehicle.model}`;
                 document.getElementById('veh-meta').textContent = `Plate: ${currentVehicle.license_plate} • ${currentVehicle.transmission || 'Auto'} • ${currentVehicle.seats || 5} Seats`;

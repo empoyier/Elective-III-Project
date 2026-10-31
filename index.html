@@ -31,11 +31,32 @@
         }
 
         .splash-media-half img {
+            position: absolute;
+            inset: 0;
             width: 100%;
-            height: min(76vh, 760px);
-            object-fit: contain;
+            height: 100%;
+            object-fit: cover;
             object-position: center;
             mix-blend-mode: multiply;
+        }
+
+        .image-owner-tooltip {
+            position: fixed;
+            z-index: 10;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #101828;
+            color: #FFFFFF;
+            font-size: 13px;
+            line-height: 1.4;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(14px, 14px);
+            transition: opacity 0.12s ease;
+        }
+
+        .image-owner-tooltip.is-visible {
+            opacity: 1;
         }
 
         .splash-content-half {
@@ -292,7 +313,8 @@
 
 <div class="splash-split-container">
     <div class="splash-media-half" aria-label="Featured vehicle">
-        <img src="assets/images/toyota fortuner.jpg" alt="Toyota Fortuner available in the APEX rental fleet">
+        <img src="assets/images/4kwallpapercar.jpg" alt="Toyota Fortuner available in the APEX rental fleet">
+        <span class="image-owner-tooltip" role="tooltip" aria-hidden="true">@4kwallpapercars</span>
         <div class="vehicle-caption">
             <strong>Toyota Fortuner</strong>
             One of the vehicles in our Zambales fleet
@@ -319,7 +341,33 @@
 
             <a href="fleet.html" class="splash-btn-get-started">
                 Browse available cars <span aria-hidden="true">&rarr;</span>
-                
+<script>
+    const featuredImage = document.querySelector('.splash-media-half img');
+    const imageOwnerTooltip = document.querySelector('.image-owner-tooltip');
 
+    featuredImage.addEventListener('pointerenter', (event) => {
+        if (event.pointerType !== 'touch') {
+            imageOwnerTooltip.classList.add('is-visible');
+        }
+    });
+
+    featuredImage.addEventListener('pointermove', (event) => {
+        if (event.pointerType === 'touch') {
+            return;
+        }
+
+        const offset = 14;
+        const tooltipBounds = imageOwnerTooltip.getBoundingClientRect();
+        const left = Math.min(event.clientX + offset, window.innerWidth - tooltipBounds.width - 8);
+        const top = Math.min(event.clientY + offset, window.innerHeight - tooltipBounds.height - 8);
+
+        imageOwnerTooltip.style.left = `${Math.max(8, left)}px`;
+        imageOwnerTooltip.style.top = `${Math.max(8, top)}px`;
+    });
+
+    featuredImage.addEventListener('pointerleave', () => {
+        imageOwnerTooltip.classList.remove('is-visible');
+    });
+</script>
 </body>
 </html>

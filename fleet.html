@@ -7,6 +7,7 @@
     <title>Select Your Vehicle | APEX Car Rental Services</title>
     <link rel="stylesheet" href="assets/css/apex-theme.css">
     <link rel="stylesheet" href="assets/css/customer.css">
+    <script src="assets/js/vehicle-images.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-config.js"></script>
 </head>
@@ -252,13 +253,16 @@ function renderVehicles() {
         }
 
         const catName = veh.vehicle_categories?.name || 'Standard';
+        const localImage = getLocalVehicleImage(veh.brand, veh.model);
+        const imageCredit = getLocalVehicleImageCredit(veh.brand, veh.model) || (!localImage ? veh.image_credit : '');
+        const imageSrc = localImage || veh.image_url || '';
 
         return `
             <div class="vehicle-card">
                 <div class="vehicle-thumb-wrap">
-                    <img src="${sanitize(veh.image_url)}" alt="${sanitize(veh.brand + ' ' + veh.model)}" class="vehicle-thumb" loading="lazy">
+                    <img src="${sanitize(imageSrc)}" alt="${sanitize(veh.brand + ' ' + veh.model)}" class="vehicle-thumb" loading="lazy">
                     <span class="vehicle-category-badge">${sanitize(catName)}</span>
-                    ${veh.image_credit ? `<span class="vehicle-credit-tag">${sanitize(veh.image_credit)}</span>` : ''}
+                    ${imageCredit ? `<span class="vehicle-credit-tag">${sanitize(imageCredit)}</span>` : ''}
                 </div>
 
                 <div class="vehicle-card-body">
