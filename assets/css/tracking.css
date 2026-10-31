@@ -38,7 +38,7 @@
 }
 
 .map-container-wrap {
-    background: #F1F5F9;
+    background: #FFFFFF;
     border: 1px solid var(--apex-border-crisp);
     border-radius: var(--apex-radius);
     height: 600px;
@@ -73,7 +73,7 @@
 .hud-plate-tag {
     font-family: monospace;
     font-size: 12px;
-    background: #F1F5F9;
+    background: var(--apex-primary-light);
     border: 1px solid var(--apex-border-crisp);
     padding: 2px 6px;
     border-radius: 2px;
@@ -89,7 +89,7 @@
 }
 
 .hud-stat-box {
-    background: #F8FAFC;
+    background: var(--apex-primary-light);
     border: 1px solid var(--apex-border-crisp);
     padding: 8px 12px;
     border-radius: 2px;
@@ -140,7 +140,7 @@
 }
 
 .progress-track {
-    background: #E2E8F0;
+    background: var(--apex-primary-light);
     height: 10px;
     border-radius: 5px;
     overflow: hidden;

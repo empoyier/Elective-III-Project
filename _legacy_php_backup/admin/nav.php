@@ -20,14 +20,14 @@ $activeAdminNav = $activeAdminNav ?? 'dashboard';
     
     <link rel="stylesheet" href="<?= apex_url('assets/css/apex-theme.css') ?>">
     <link rel="stylesheet" href="<?= apex_url('assets/css/admin.css') ?>">
-    <link rel="stylesheet" href="<?= apex_url('assets/css/admin-dark.css') ?>">
+    <link rel="stylesheet" href="<?= apex_url('assets/css/admin-dark.css') ?>?v=1">
     <?php if (!empty($includeMap)): ?>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <?php endif; ?>
     <!-- Chart.js for Admin Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
-<body style="background:#F1F5F9;">
+<body style="background: var(--dm-bg);">
 
 <div style="display:flex; min-height:100vh;">
     <!-- Admin Sidebar (Windows BSoD Blue Accents & Hard Slate) -->

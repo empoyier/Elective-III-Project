@@ -1,23 +1,22 @@
 /**
  * APEX Car Rental Management System
- * Design System: Windows BSoD Blue (#0078D7) & Hard Crisp Color Palette
+ * Design System: Facebook blue and white
  * Strictly no blur glows, no neon effects, no AI eyebrow tags.
  */
 
 :root {
     --apex-primary: #1877F2;
-    --apex-primary-hover: #1877F2;
-    --apex-primary-light: #1877F2;
-    --apex-primary-focus: #1877F2;
+    --apex-primary-hover: #1264D8;
+    --apex-primary-light: #EFF6FF;
+    --apex-primary-focus: #93C5FD;
 
-    --apex-dark-navy: #0B132B;
     --apex-slate-dark: #1E293B;
-    --apex-bg-canvas: #F8FAFC;
+    --apex-bg-canvas: #FFFFFF;
     --apex-card-white: #FFFFFF;
 
-    --apex-border-crisp: #CBD5E1;
-    --apex-border-subtle: #E2E8F0;
-    --apex-border-dark: #334155;
+    --apex-border-crisp: #D7E0EB;
+    --apex-border-subtle: #E8EDF4;
+    --apex-border-dark: #D7E0EB;
 
     --apex-text-main: #0F172A;
     --apex-text-secondary: #334155;
@@ -32,7 +31,7 @@
     --apex-danger-bg: #FEF2F2;
 
     --apex-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --apex-radius: 4px;
+    --apex-radius: 10px;
 }
 
 *, *::before, *::after {
@@ -43,7 +42,7 @@
 
 body {
     font-family: var(--apex-font-sans);
-    background-color: #FFFFFF;
+    background-color: var(--apex-bg-canvas);
     color: var(--apex-text-main);
     line-height: 1.5;
     font-size: 15px;
@@ -91,7 +90,7 @@ img {
     border-radius: var(--apex-radius);
     border: 1px solid transparent;
     cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
     text-decoration: none;
     white-space: nowrap;
 }
@@ -106,6 +105,8 @@ img {
     background-color: var(--apex-primary-hover);
     border-color: var(--apex-primary-hover);
     color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(18, 100, 216, 0.18);
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -115,19 +116,20 @@ img {
 }
 
 .btn-secondary:hover {
-    background-color: #F1F5F9;
+    background-color: var(--apex-primary-light);
     border-color: #94A3B8;
     color: var(--apex-text-main);
+    transform: translateY(-1px);
 }
 
 .btn-dark {
-    background-color: var(--apex-dark-navy);
+    background-color: var(--apex-primary);
     color: #FFFFFF;
-    border-color: var(--apex-dark-navy);
+    border-color: var(--apex-primary);
 }
 
 .btn-dark:hover {
-    background-color: #1C2541;
+    background-color: var(--apex-primary-hover);
     color: #FFFFFF;
 }
 
@@ -155,8 +157,8 @@ img {
 
 /* Navbar */
 .site-nav {
-    background-color: var(--apex-primary);
-    border-bottom: 2px solid var(--apex-primary);
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--apex-border-subtle);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -180,24 +182,24 @@ img {
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    color: #FFFFFF;
+    color: var(--apex-text-main);
 }
 
 .brand-badge {
-    background-color: #FFFFFF;
-    color: var(--apex-primary);
+    background-color: var(--apex-primary);
+    color: #FFFFFF;
     font-weight: 900;
     letter-spacing: 1.5px;
     font-size: 16px;
     padding: 4px 10px;
-    border-radius: 2px;
+    border-radius: 5px;
 }
 
 .brand-name {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    color: #FFFFFF;
+    color: var(--apex-text-main);
 }
 
 .nav-links {
@@ -208,7 +210,7 @@ img {
 }
 
 .nav-links a {
-    color: #FFFFFF;
+    color: var(--apex-text-secondary);
     font-weight: 500;
     font-size: 14px;
     padding: 8px 0;
@@ -217,7 +219,7 @@ img {
 }
 
 .nav-links a:hover, .nav-links a.active {
-    color: #FFFFFF;
+    color: var(--apex-primary);
     opacity: 1;
 }
 
@@ -228,7 +230,7 @@ img {
     left: 0;
     right: 0;
     height: 2px;
-    background-color: #FFFFFF;
+    background-color: var(--apex-primary);
 }
 
 .nav-actions {
@@ -269,7 +271,7 @@ img {
 .badge-out_on_rental {
     background-color: var(--apex-primary-light);
     color: var(--apex-primary);
-    border: 1px solid #BAE6FD;
+    border: 1px solid #BFDBFE;
 }
 
 .badge-sim {
@@ -286,12 +288,13 @@ img {
     border: 1px solid var(--apex-border-crisp);
     border-radius: var(--apex-radius);
     overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
 }
 
 .card-header {
     padding: 16px 20px;
     border-bottom: 1px solid var(--apex-border-subtle);
-    background-color: #FAFAFA;
+    background-color: #F8FAFC;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -328,13 +331,24 @@ img {
     color: var(--apex-text-main);
     background-color: #FFFFFF;
     border: 1px solid var(--apex-border-crisp);
-    border-radius: var(--apex-radius);
-    transition: border-color 0.15s ease;
+    border-radius: 8px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-control:focus {
     outline: none;
-    border-color: var(--apex-border-crisp);
+    border-color: var(--apex-primary);
+    box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.14);
+}
+
+.form-control::placeholder {
+    color: var(--apex-text-muted);
+    opacity: 1;
+}
+
+.form-control option {
+    color: var(--apex-text-main);
+    background-color: #FFFFFF;
 }
 
 /* Alerts */
@@ -436,11 +450,11 @@ img {
 }
 
 .footer-col ul li a:hover {
-    color: #FFFFFF;
+    color: #BFDBFE;
 }
 
 .footer-bottom {
-    border-top: 1px solid #1E293B;
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
     padding-top: 24px;
     display: flex;
     align-items: center;
@@ -450,8 +464,34 @@ img {
 
 /* Responsive adjustments */
 @media (max-width: 900px) {
+    .nav-inner {
+        height: auto;
+        min-height: 64px;
+        flex-wrap: wrap;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        row-gap: 8px;
+    }
     .nav-links {
+        display: flex;
+        order: 3;
+        width: 100%;
+        gap: 20px;
+        overflow-x: auto;
+        padding: 4px 0 2px;
+        scrollbar-width: none;
+    }
+    .nav-links::-webkit-scrollbar {
         display: none;
+    }
+    .nav-links a {
+        white-space: nowrap;
+    }
+    .brand-name {
+        font-size: 15px;
+    }
+    .nav-actions {
+        margin-left: auto;
     }
     .footer-grid {
         grid-template-columns: 1fr;
@@ -461,5 +501,33 @@ img {
         flex-direction: column;
         gap: 12px;
         text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .container-wide {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+    .nav-inner {
+        column-gap: 12px;
+    }
+    .brand-link {
+        gap: 8px;
+    }
+    .brand-badge {
+        font-size: 14px;
+        padding: 4px 8px;
+    }
+    .brand-name {
+        font-size: 13px;
+        letter-spacing: 0;
+    }
+    .nav-actions {
+        gap: 6px;
+    }
+    .nav-actions .btn {
+        padding: 6px 9px;
+        font-size: 12px;
     }
 }

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Fleet Live Tracking Map | APEX Fleet Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/apex-theme.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-dark.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: var(--dm-bg); color: var(--apex-text-main); }
+        a { text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div style="display:flex; min-height:100vh;">
+    <!-- Sidebar -->
+    <aside style="width:260px; background:#0B132B; border-right:1px solid #1E293B; color:#CBD5E1; display:flex; flex-direction:column; flex-shrink:0;">
+        <div style="padding:22px 20px; border-bottom:1px solid #1E293B; display:flex; align-items:center; gap:10px;">
+            <span class="brand-badge">APEX</span>
+            <div>
+                <div style="font-weight:800; font-size:15px; color:#FFFFFF;">Fleet Operations</div>
+                <div style="font-size:11px; color:#94A3B8;">Admin Control Center</div>
+            </div>
+        </div>
+        <nav style="padding:20px 0; flex:1;">
+            <div style="font-size:11px; font-weight:700; color:#64748B; padding:0 20px 8px; text-transform:uppercase;">Operations</div>
+            <a href="index.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">📊 Dashboard Overview</a>
+            <a href="bookings.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">📑 Rental Workflow Queue</a>
+            <a href="fleet-tracking.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#FFFFFF; background:#1E293B; border-left:4px solid var(--apex-primary);">🛰 Master Fleet Live Map</a>
+            <div style="font-size:11px; font-weight:700; color:#64748B; padding:20px 20px 8px; text-transform:uppercase;">Fleet & Inventory</div>
+            <a href="vehicles.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">🚗 Vehicle Fleet</a>
+            <a href="maintenance.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">🔧 Maintenance Log</a>
+            <a href="customers.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">👥 Customer Accounts</a>
+        </nav>
+        <div style="padding:16px 20px; border-top:1px solid #1E293B; font-size:13px;">
+            <a href="../index.html" style="color:#38BDF8; font-weight:600; display:block; margin-bottom:8px;">← Return to Public Website</a>
+            <div style="color:#64748B; font-size:11px;">Logged in as <strong id="admin-user-name">Admin</strong></div>
+        </div>
+    </aside>
+
+    <div style="flex:1; display:flex; flex-direction:column; overflow-x:hidden;">
+        <header style="background:#FFFFFF; border-bottom:1px solid var(--apex-border-crisp); padding:16px 32px; display:flex; align-items:center; justify-content:space-between;">
+            <div>
+                <h1 style="font-size:20px; font-weight:800; color:var(--apex-text-main); margin:0;">
+                    Master Fleet Live Tracking Map
+                </h1>
+            </div>
+            <div style="display:flex; align-items:center; gap:14px;">
+                <span class="badge badge-sim">ADMIN MODE</span>
+                <a href="../logout.html" class="btn btn-secondary btn-sm">Sign Out</a>
+            </div>
+        </header>
+
+        <main style="padding:32px; flex:1;">
+            <div class="simulation-disclaimer-banner" style="margin-bottom:20px;">
+                <div>
+                    <span class="sim-tag">FLEET DISPATCH HUD</span>
+                    <strong>DISPATCH SIMULATION NOTICE:</strong> Monitoring active rental vehicle(s) traversing Zambales transit corridors (Main Hub: Iba, Zambales).
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 340px; gap:24px; min-height:650px;">
+                <!-- Master Fleet Map -->
+                <div style="background:#0B132B; border:1px solid var(--apex-border-crisp); border-radius:4px; height:650px; position:relative; overflow:hidden;">
+                    <div id="master-fleet-map" style="width:100%; height:100%;"></div>
+                </div>
+
+                <!-- Active Vehicle Fleet Sidebar -->
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title" id="active-count-title">Active Dispatched Fleet (0)</span>
+                        </div>
+                        <div class="card-body" id="active-list-body" style="padding:12px; max-height:580px; overflow-y:auto;">
+                            <p style="font-size:13px; color:var(--apex-text-muted); text-align:center; padding:20px 0;">
+                                Loading dispatched vehicles from Supabase...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+let masterMap;
+let vehicleMarkers = {};
+let activeBookings = [];
+
+// Zambales waypoints loop for simulated positions
+const WAYPOINTS = [
+    [15.3265, 119.9805],
+    [15.2800, 120.0150],
+    [15.1500, 120.0600],
+    [15.0500, 120.0850],
+    [14.8800, 120.2000]
+];
+
+async function loadFleetTracking() {
+    const user = await getCurrentUser();
+    if (user) {
+        document.getElementById('admin-user-name').textContent = user.user_metadata?.name || user.email;
+    }
+
+    masterMap = L.map('master-fleet-map').setView([15.3265, 119.9805], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors &bull; APEX Fleet Dispatch'
+    }).addTo(masterMap);
+
+    const carIcon = L.divIcon({
+        className: 'apex-fleet-marker',
+        html: `
+            <div style="width:34px; height:34px; background:#0078D7; border:2px solid #FFFFFF; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:#FFFFFF;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="8" rx="2"/>
+                    <path d="M5 11l2-5h10l2 5"/>
+                    <circle cx="7.5" cy="15.5" r="1.5"/>
+                    <circle cx="16.5" cy="15.5" r="1.5"/>
+                </svg>
+            </div>
+        `,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
+    });
+
+    try {
+        const { data: bookings } = await supabaseClient
+            .from('bookings')
+            .select('*, vehicles(*), users(name)')
+            .eq('status', 'out_on_rental');
+
+        activeBookings = bookings || [];
+        document.getElementById('active-count-title').textContent = `Active Dispatched Fleet (${activeBookings.length})`;
+
+        const listBody = document.getElementById('active-list-body');
+        if (activeBookings.length === 0) {
+            listBody.innerHTML = `
+                <p style="font-size:13px; color:var(--apex-text-muted); text-align:center; padding:20px 0;">
+                    No vehicles are currently out on rental. Confirm a pending reservation pickup in the <a href="bookings.html" style="color:var(--apex-primary); font-weight:600;">Rental Workflow</a> to dispatch vehicles.
+                </p>
+            `;
+            return;
+        }
+
+        const markerGroup = L.featureGroup();
+        listBody.innerHTML = activeBookings.map((b, idx) => {
+            const veh = b.vehicles || {};
+            const pos = WAYPOINTS[idx % WAYPOINTS.length];
+            const marker = L.marker(pos, { icon: carIcon }).addTo(masterMap);
+            marker.bindPopup(`<strong>${veh.brand || ''} ${veh.model || ''}</strong> (${veh.license_plate || ''})<br>Ref: ${b.booking_ref}`);
+            vehicleMarkers[b.id] = marker;
+            markerGroup.addLayer(marker);
+
+            return `
+                <div class="card" style="margin-bottom:12px; border:1px solid #CBD5E1; padding:12px; cursor:pointer;" onclick="focusVehicle(${pos[0]}, ${pos[1]}, ${b.id})">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                        <img src="${sanitize(veh.image_url)}" alt="Car" style="width:50px; height:32px; object-fit:cover; border-radius:2px; border:1px solid #CBD5E1;">
+                        <div>
+                            <strong style="font-size:14px;">${sanitize(veh.brand || '')} ${sanitize(veh.model || '')}</strong>
+                            <div style="font-size:11px; color:var(--apex-text-muted); font-family:monospace;">${sanitize(veh.license_plate || '')} &bull; ${sanitize(b.booking_ref)}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:12px; color:var(--apex-text-secondary); margin-bottom:6px;">
+                        Client: <strong>${sanitize(b.users?.name || 'Customer')}</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; background:#F8FAFC; padding:6px 8px; border-radius:2px; font-family:monospace;">
+                        <span>Speed: <strong style="color:var(--apex-primary);" id="spd-${b.id}">48.0</strong> km/h</span>
+                        <span>Fuel: <strong style="color:var(--apex-success);" id="fuel-${b.id}">85</strong>%</span>
+                    </div>
+                    <div style="margin-top:8px; text-align:right;">
+                        <a href="../track.html?booking_id=${b.id}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:11px; padding:4px 8px;">
+                            Dedicated HUD &rarr;
+                        </a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        masterMap.fitBounds(markerGroup.getBounds(), { padding: [50, 50], maxZoom: 13 });
+
+        // Sim interval
+        setInterval(() => {
+            activeBookings.forEach((b, idx) => {
+                const stepIdx = (Math.floor(Date.now() / 3000) + idx) % WAYPOINTS.length;
+                const nextPos = WAYPOINTS[stepIdx];
+                if (vehicleMarkers[b.id]) {
+                    vehicleMarkers[b.id].setLatLng(nextPos);
+                }
+                const spdEl = document.getElementById(`spd-${b.id}`);
+                if (spdEl) spdEl.textContent = (40 + Math.random() * 20).toFixed(1);
+            });
+        }, 3000);
+
+    } catch (e) {
+        console.warn(e);
+    }
+}
+
+function focusVehicle(lat, lng, bookingId) {
+    if (masterMap) {
+        masterMap.setView([lat, lng], 13, { animate: true });
+        if (vehicleMarkers[bookingId]) {
+            vehicleMarkers[bookingId].openPopup();
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadFleetTracking);
+</script>
+</body>
+</html>

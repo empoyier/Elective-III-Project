@@ -1,47 +1,46 @@
-/* assets/css/admin-dark.css */
-/* --------------------------------------------------------------
-   Dark‑mode + Glassmorphism UI for the Admin fleet pages
-   -------------------------------------------------------------- */
+/* Admin operations theme */
 :root {
-    /* Dark palette */
-    --dm-bg: #0B132B;                 /* deep navy (sidebar base)          */
-    --dm-card-bg: rgba(255,255,255,.07); /* glass‑like card background       */
-    --dm-card-bg-hover: rgba(255,255,255,.12);
-    --dm-table-bg: rgba(255,255,255,.03);
-    --dm-table-hover: rgba(255,255,255,.06);
-    --dm-input-bg: rgba(255,255,255,.04);
-    --dm-input-border: rgba(255,255,255,.15);
-    --dm-text: #F1F5F9;               /* light‑gray for readability        */
-    --dm-primary: #1877F2;            /* accent (same as theme primary)    */
+    --dm-bg: #0B132B;
+    --dm-card-bg: #121E34;
+    --dm-card-bg-hover: #192942;
+    --dm-table-bg: #111C30;
+    --dm-table-hover: #1A2940;
+    --dm-input-bg: #0E192C;
+    --dm-input-border: #34445D;
+    --dm-text: #F1F5F9;
+    --dm-primary: #1877F2;
     --dm-primary-hover: #1669e0;
     --dm-radius: 8px;
     --dm-transition: 0.15s ease;
 }
 
-/* Global dark background */
 body {
     background: var(--dm-bg);
     color: var(--dm-text);
     font-family: var(--apex-font-sans);
 }
 
-/* Glass‑morphic card */
 .glass-card {
     background: var(--dm-card-bg);
     border-radius: var(--dm-radius);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow: 0 8px 24px rgba(0,0,0,.32);
+    border: 1px solid #263650;
+    box-shadow: 0 10px 28px rgba(0,0,0,.18);
     overflow: hidden;
 }
 
-/* Hover effect for cards */
 .glass-card:hover {
     background: var(--dm-card-bg-hover);
 }
 
-/* Dark table */
+.glass-card .card-header {
+    background: #16243A;
+    border-color: #293A53;
+}
+
+.glass-card .card-title {
+    color: var(--dm-text);
+}
+
 .glass-table {
     background: var(--dm-table-bg);
     border-collapse: separate;
@@ -62,7 +61,6 @@ body {
     background: var(--dm-table-hover);
 }
 
-/* Form controls – dark, glass‑styled */
 .glass-input,
 .glass-input:focus {
     background: var(--dm-input-bg);
@@ -80,7 +78,6 @@ body {
     box-shadow: 0 0 0 3px rgba(24,119,242,.15);
 }
 
-/* Buttons – use primary/accent colors */
 .btn-primary {
     background: var(--dm-primary);
     border-color: var(--dm-primary);
@@ -91,16 +88,13 @@ body {
     border-color: var(--dm-primary-hover);
 }
 
-/* Modal dark background with glass effect */
 .modal-content {
     background: var(--dm-card-bg);
     color: var(--dm-text);
-    border: none;
+    border: 1px solid #34445D;
     border-radius: var(--dm-radius);
-    backdrop-filter: blur(12px);
 }
 
-/* Subtle fade‑in for modal */
 .modal.fade .modal-dialog {
     transition: transform .3s ease-out, opacity .3s ease-out;
 }
@@ -109,7 +103,6 @@ body {
     opacity: 1;
 }
 
-/* Table actions (edit / delete) */
 .action-btn {
     opacity: .85;
     transition: opacity var(--dm-transition);
@@ -118,7 +111,6 @@ body {
     opacity: 1;
 }
 
-/* Scrollbar blending */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -128,4 +120,14 @@ body {
 ::-webkit-scrollbar-thumb {
     background: rgba(255,255,255,.2);
     border-radius: 4px;
+}
+
+body > div:first-of-type .form-control {
+    color: var(--dm-text);
+    background-color: var(--dm-input-bg);
+    border-color: var(--dm-input-border);
+}
+
+body > div:first-of-type .form-control:focus {
+    border-color: var(--dm-primary);
 }

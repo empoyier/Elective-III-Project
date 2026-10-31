@@ -73,7 +73,7 @@ require_once __DIR__ . '/nav.php';
 
     <div class="card-body" style="padding:0;">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table glass-table">
                 <thead>
                     <tr>
                         <th>Vehicle & Plate</th>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <title>Register Customer Account | APEX</title>
+    <link rel="stylesheet" href="assets/css/apex-theme.css">
+    <link rel="stylesheet" href="assets/css/customer.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+</head>
+<body>
+
+<header class="site-nav">
+    <div class="container-wide nav-inner">
+        <a href="index.html" class="brand-link">
+            <span class="brand-badge">APEX</span>
+            <span class="brand-name">Car Rental Services</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="fleet.html">Select Vehicle</a></li>
+            <li><a href="track.html">Simulated Tracking</a></li>
+            <li><a href="my-bookings.html">My Reservations</a></li>
+            <li><a href="admin/index.html" id="nav-admin-link" style="display:none; color:#38BDF8; font-weight:700;">Admin Dashboard &rarr;</a></li>
+        </ul>
+        <div class="nav-actions" id="nav-actions">
+            <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+            <a href="register.html" class="btn btn-primary btn-sm">Register</a>
+        </div>
+    </div>
+</header>
+<main>
+
+<div class="container" style="max-width:540px; padding:50px 20px 100px;">
+    <div class="card" style="border-top:4px solid var(--apex-primary);">
+        <div class="card-header">
+            <h1 class="card-title" style="font-size:18px;">Create an APEX Account</h1>
+        </div>
+        <div class="card-body">
+            <div id="reg-alert" class="alert alert-danger" style="display:none;"></div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label class="form-label" for="reg_name">Full Legal Name *</label>
+                    <input type="text" name="name" id="reg_name" class="form-control" required placeholder="e.g. Juan Dela Cruz">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reg_email">Email Address *</label>
+                    <input type="email" name="email" id="reg_email" class="form-control" required placeholder="juan@domain.ph">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reg_password">Password (Minimum 6 characters) *</label>
+                    <input type="password" name="password" id="reg_password" class="form-control" required minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reg_phone">Mobile Phone *</label>
+                    <input type="text" name="phone" id="reg_phone" class="form-control" required placeholder="+63 917 123 4567">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reg_license">Philippine LTO Driver's License Number</label>
+                    <input type="text" name="license_number" id="reg_license" class="form-control" placeholder="e.g. N01-12-123456">
+                </div>
+
+                <button type="submit" id="btn-reg" class="btn btn-primary" style="width:100%; padding:12px; margin-top:8px;">
+                    Complete Registration &rarr;
+                </button>
+            </form>
+
+            <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--apex-border-subtle); text-align:center; font-size:13px;">
+                Already have an account? <a href="login.html" style="font-weight:700;">Sign In</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</main>
+
+<footer class="site-footer">
+    <div class="container footer-grid">
+        <div class="footer-col">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <span class="brand-badge">APEX</span>
+                <span style="font-size:16px; font-weight:700; color:#FFFFFF;">Car Rental Services</span>
+            </div>
+            <p style="font-size:13px; line-height:1.6; color:#FFFFFF;">
+                A web-based car rental management system delivering streamlined vehicle reservations and real-time tracking across the Philippines.
+            </p>
+        </div>
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="fleet.html">Browse All Vehicles</a></li>
+                <li><a href="my-bookings.html">My Reservations</a></li>
+                <li><a href="login.html">Client Sign In</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="container footer-bottom">
+        <div>&copy; 2026 APEX Car Rental Services. All rights reserved.</div>
+    </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    initPublicHeader('register');
+    const user = await getCurrentUser();
+    if (user) {
+        window.location.href = 'my-bookings.html';
+        return;
+    }
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('reg_name').value.trim();
+        const email = document.getElementById('reg_email').value.trim();
+        const password = document.getElementById('reg_password').value;
+        const phone = document.getElementById('reg_phone').value.trim();
+        const licenseNumber = document.getElementById('reg_license').value.trim();
+
+        const alertEl = document.getElementById('reg-alert');
+        const submitBtn = document.getElementById('btn-reg');
+        let accountCreated = false;
+
+        alertEl.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Registering account...';
+
+        try {
+            const { data, error } = await supabaseClient.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        name: name,
+                        phone: phone,
+                        license_number: licenseNumber,
+                        role: 'customer'
+                    }
+                }
+            });
+
+            if (error) throw error;
+            accountCreated = Boolean(data.user);
+
+            if (data.user) {
+                const { error: profileError } = await supabaseClient.from('users').upsert({
+                    id: data.user.id,
+                    email: email,
+                    name: name,
+                    phone: phone,
+                    license_number: licenseNumber,
+                    role: 'customer',
+                    status: 'active'
+                });
+                if (profileError) {
+                    throw new Error(`Account created, but the customer profile could not be saved: ${profileError.message}`);
+                }
+            }
+
+            if (data.session) {
+                window.location.href = 'my-bookings.html';
+                return;
+            }
+
+            alertEl.className = 'alert alert-success';
+            alertEl.textContent = 'Account created. Check your email to confirm your address, then sign in.';
+            alertEl.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Confirmation Email Sent';
+        } catch (err) {
+            alertEl.textContent = err.message || 'Registration failed.';
+            alertEl.style.display = 'block';
+            if (accountCreated) {
+                submitBtn.textContent = 'Account Created';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Complete Registration →';
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>

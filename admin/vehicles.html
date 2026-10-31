@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Inventory Management | APEX Fleet Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/apex-theme.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: var(--dm-bg); color: var(--apex-text-main); }
+        a { text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div style="display:flex; min-height:100vh;">
+    <!-- Sidebar -->
+    <aside style="width:260px; background:#0B132B; border-right:1px solid #1E293B; color:#CBD5E1; display:flex; flex-direction:column; flex-shrink:0;">
+        <div style="padding:22px 20px; border-bottom:1px solid #1E293B; display:flex; align-items:center; gap:10px;">
+            <span class="brand-badge">APEX</span>
+            <div>
+                <div style="font-weight:800; font-size:15px; color:#FFFFFF;">Fleet Operations</div>
+                <div style="font-size:11px; color:#94A3B8;">Admin Control Center</div>
+            </div>
+        </div>
+        <nav style="padding:20px 0; flex:1;">
+            <div style="font-size:11px; font-weight:700; color:#64748B; padding:0 20px 8px; text-transform:uppercase;">Operations</div>
+            <a href="index.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">📊 Dashboard Overview</a>
+            <a href="bookings.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">📑 Rental Workflow Queue</a>
+            <a href="fleet-tracking.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">🛰 Master Fleet Live Map</a>
+            <div style="font-size:11px; font-weight:700; color:#64748B; padding:20px 20px 8px; text-transform:uppercase;">Fleet & Inventory</div>
+            <a href="vehicles.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#FFFFFF; background:#1E293B; border-left:4px solid var(--apex-primary);">🚗 Vehicle Fleet</a>
+            <a href="maintenance.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">🔧 Maintenance Log</a>
+            <a href="customers.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">👥 Customer Accounts</a>
+        </nav>
+        <div style="padding:16px 20px; border-top:1px solid #1E293B; font-size:13px;">
+            <a href="../index.html" style="color:#38BDF8; font-weight:600; display:block; margin-bottom:8px;">← Return to Public Website</a>
+            <div style="color:#64748B; font-size:11px;">Logged in as <strong id="admin-user-name">Admin</strong></div>
+        </div>
+    </aside>
+
+    <div style="flex:1; display:flex; flex-direction:column; overflow-x:hidden;">
+        <header style="background:#FFFFFF; border-bottom:1px solid var(--apex-border-crisp); padding:16px 32px; display:flex; align-items:center; justify-content:space-between;">
+            <div>
+                <h1 style="font-size:20px; font-weight:800; color:var(--apex-text-main); margin:0;">
+                    Fleet Inventory Management
+                </h1>
+            </div>
+            <div style="display:flex; align-items:center; gap:14px;">
+                <span class="badge badge-sim">ADMIN MODE</span>
+                <a href="../logout.html" class="btn btn-secondary btn-sm">Sign Out</a>
+            </div>
+        </header>
+
+        <main style="padding:32px; flex:1;">
+            <div id="veh-msg" class="alert alert-success" style="display:none; margin-bottom:20px;"></div>
+
+            <div class="card glass-card">
+                <div class="card-header">
+                    <span class="card-title" id="fleet-count-title">Fleet Inventory</span>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="openAddModal()">
+                        + Add New Vehicle
+                    </button>
+                </div>
+
+                <div class="card-body" style="padding:0;">
+                    <div id="loading-vehicles" style="padding:40px; text-align:center; color:var(--apex-text-muted);">
+                        Loading inventory from Supabase...
+                    </div>
+                    <div class="table-responsive" id="table-wrap" style="display:none;">
+                        <table class="table glass-table">
+                            <thead>
+                                <tr>
+                                    <th>Vehicle & Plate</th>
+                                    <th>Category</th>
+                                    <th>Specs</th>
+                                    <th>Daily Rate (PHP)</th>
+                                    <th>Operational Status</th>
+                                    <th>Photo Attribution</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vehicles-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal: Add New Vehicle -->
+<div id="addVehicleModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
+    <div class="card" style="width:680px; max-width:95%; margin:auto;">
+        <div class="card-header">
+            <span class="card-title">Add Vehicle to Fleet Inventory</span>
+            <button type="button" onclick="closeAddModal()" style="background:none; border:none; font-size:18px; cursor:pointer;">&times;</button>
+        </div>
+        <div class="card-body">
+            <form id="add-veh-form">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:12px;">
+                    <div class="form-group">
+                        <label class="form-label">Brand / Make *</label>
+                        <input type="text" id="add-brand" class="form-control" required placeholder="e.g. Toyota">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model Name & Trim *</label>
+                        <input type="text" id="add-model" class="form-control" required placeholder="e.g. Fortuner 2.8 4x4 LTD">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px; margin-bottom:12px;">
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select id="add-category" class="form-control" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model Year *</label>
+                        <input type="number" id="add-year" class="form-control" value="2024" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">License Plate *</label>
+                        <input type="text" id="add-plate" class="form-control" required placeholder="e.g. NBF-1234">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px; margin-bottom:12px;">
+                    <div class="form-group">
+                        <label class="form-label">Transmission</label>
+                        <select id="add-trans" class="form-control">
+                            <option value="Automatic">Automatic</option>
+                            <option value="Manual">Manual</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Seats</label>
+                        <input type="number" id="add-seats" class="form-control" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fuel Type</label>
+                        <select id="add-fuel" class="form-control">
+                            <option value="Gasoline">Gasoline</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="Hybrid">Hybrid</option>
+                            <option value="Electric">Electric</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:12px;">
+                    <div class="form-group">
+                        <label class="form-label">Daily Rental Rate (PHP ₱) *</label>
+                        <input type="number" step="0.01" id="add-rate" class="form-control" required placeholder="e.g. 3500.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Initial Odometer (km)</label>
+                        <input type="number" id="add-mileage" class="form-control" value="5000">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Vehicle Image Path *</label>
+                    <input type="text" id="add-img" class="form-control" required placeholder="assets/images/cars/fortuner.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Photo Attribution Credit</label>
+                    <input type="text" id="add-credit" class="form-control" placeholder="Photo by Unsplash">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Key Features (Comma-Separated)</label>
+                    <input type="text" id="add-features" class="form-control" placeholder="Apple CarPlay, Reverse Camera, Leather Seats">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Vehicle Description</label>
+                    <textarea id="add-desc" class="form-control" rows="2" placeholder="Brief summary of vehicle condition and performance..."></textarea>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="closeAddModal()">Cancel</button>
+                    <button type="submit" id="btn-add-veh" class="btn btn-primary btn-sm">Add to Inventory</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let categories = [];
+
+function openAddModal() {
+    document.getElementById('addVehicleModal').style.display = 'flex';
+}
+function closeAddModal() {
+    document.getElementById('addVehicleModal').style.display = 'none';
+}
+
+async function loadVehicles() {
+    const user = await getCurrentUser();
+    if (user) {
+        document.getElementById('admin-user-name').textContent = user.user_metadata?.name || user.email;
+    }
+
+    try {
+        const [catRes, vehRes] = await Promise.all([
+            supabaseClient.from('vehicle_categories').select('*').order('name'),
+            supabaseClient.from('vehicles').select('*, vehicle_categories(name)').order('id', { ascending: true })
+        ]);
+
+        categories = catRes.data || [];
+        const vehicles = vehRes.data || [];
+
+        // Populate modal select
+        const catSelect = document.getElementById('add-category');
+        catSelect.innerHTML = categories.map(c => `<option value="${c.id}">${sanitize(c.name)}</option>`).join('');
+
+        document.getElementById('fleet-count-title').textContent = `Fleet Inventory (${vehicles.length} Vehicles)`;
+        document.getElementById('loading-vehicles').style.display = 'none';
+        document.getElementById('table-wrap').style.display = 'block';
+
+        const tbody = document.getElementById('vehicles-tbody');
+        tbody.innerHTML = vehicles.map(v => {
+            const catName = v.vehicle_categories?.name || 'Standard';
+            return `
+                <tr>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <img src="${sanitize(v.image_url)}" alt="Thumb" style="width:58px; height:38px; object-fit:cover; border-radius:2px; border:1px solid #CBD5E1;">
+                            <div>
+                                <strong>${sanitize(v.brand)} ${sanitize(v.model)}</strong>
+                                <div style="font-size:11px; color:var(--apex-text-muted); font-family:monospace;">${sanitize(v.license_plate)} &bull; ${v.year || 2024}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${sanitize(catName)}</td>
+                    <td style="font-size:12px; color:var(--apex-text-muted);">
+                        ${sanitize(v.transmission || 'Automatic')} &bull; ${v.seats || 5} seats &bull; ${sanitize(v.fuel_type || 'Gasoline')}
+                    </td>
+                    <td><strong style="color:var(--apex-primary);">${formatPesos(v.daily_rate)}</strong></td>
+                    <td>
+                        <span class="badge badge-${sanitize(v.operational_status || 'available')}">
+                            ${sanitize((v.operational_status || 'available').toUpperCase())}
+                        </span>
+                    </td>
+                    <td style="font-size:11px; color:var(--apex-text-muted);">${sanitize(v.image_credit || 'Staff Upload')}</td>
+                    <td style="text-align:right;">
+                        <select onchange="updateVehicleStatus(${v.id}, this.value)" style="font-size:12px; padding:4px 6px; border:1px solid #CBD5E1; border-radius:2px;">
+                            <option value="available" ${v.operational_status === 'available' ? 'selected' : ''}>Set Available</option>
+                            <option value="maintenance" ${v.operational_status === 'maintenance' ? 'selected' : ''}>Set Maintenance</option>
+                            <option value="deactivated" ${v.operational_status === 'deactivated' ? 'selected' : ''}>Set Deactivated</option>
+                        </select>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (err) {
+        document.getElementById('loading-vehicles').innerHTML = `<div class="alert alert-danger">${sanitize(err.message)}</div>`;
+    }
+}
+
+async function updateVehicleStatus(id, newStat) {
+    try {
+        const { error } = await supabaseClient.from('vehicles').update({ operational_status: newStat }).eq('id', id);
+        if (error) throw error;
+        const msg = document.getElementById('veh-msg');
+        msg.textContent = `Vehicle #${id} status changed to ${newStat.toUpperCase()}`;
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 3000);
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+document.getElementById('add-veh-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btn-add-veh');
+    btn.disabled = true;
+
+    const brand = document.getElementById('add-brand').value.trim();
+    const model = document.getElementById('add-model').value.trim();
+    const category_id = Number(document.getElementById('add-category').value);
+    const year = Number(document.getElementById('add-year').value);
+    const license_plate = document.getElementById('add-plate').value.trim().toUpperCase();
+    const transmission = document.getElementById('add-trans').value;
+    const seats = Number(document.getElementById('add-seats').value);
+    const fuel_type = document.getElementById('add-fuel').value;
+    const daily_rate = parseFloat(document.getElementById('add-rate').value);
+    const mileage = Number(document.getElementById('add-mileage').value);
+    const image_url = document.getElementById('add-img').value.trim();
+    const image_credit = document.getElementById('add-credit').value.trim();
+    const features = document.getElementById('add-features').value.split(',').map(s => s.trim()).filter(Boolean);
+    const description = document.getElementById('add-desc').value.trim();
+
+    try {
+        const { error } = await supabaseClient.from('vehicles').insert({
+            brand, model, category_id, year, license_plate, transmission, seats, fuel_type,
+            daily_rate, mileage, image_url, image_credit, features: JSON.stringify(features),
+            description, operational_status: 'available'
+        });
+
+        if (error) throw error;
+        closeAddModal();
+        loadVehicles();
+    } catch (err) {
+        alert('Error adding vehicle: ' + err.message);
+    } finally {
+        btn.disabled = false;
+    }
+});
+
+document.addEventListener('DOMContentLoaded', loadVehicles);
+</script>
+</body>
+</html>

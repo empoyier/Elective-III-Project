@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <title>APEX Car Rental Services | Welcome</title>
+    <link rel="stylesheet" href="assets/css/apex-theme.css">
+    <style>
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            background: #FFFFFF;
+        }
+
+        .splash-split-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
+            min-height: 100vh;
+        }
+
+        .splash-media-half {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #EAF3FF 0%, #C7DDF8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .splash-media-half img {
+            width: 100%;
+            height: min(76vh, 760px);
+            object-fit: contain;
+            object-position: center;
+            mix-blend-mode: multiply;
+        }
+
+        .splash-content-half {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 48px;
+            padding: clamp(24px, 4vw, 64px) clamp(28px, 5.2vw, 80px);
+            background-color: #FFFFFF;
+        }
+
+        @media (max-width: 1400px) and (min-width: 901px) {
+            .splash-content-half {
+                padding-right: clamp(24px, 4vw, 56px);
+                padding-left: clamp(24px, 4vw, 56px);
+            }
+        }
+
+        .landing-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .landing-brand {
+            color: var(--apex-text-main);
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+            white-space: nowrap;
+        }
+
+        .landing-brand span {
+            color: var(--apex-primary);
+        }
+
+        .landing-nav-links {
+            display: flex;
+            align-items: center;
+            gap: clamp(14px, 2vw, 28px);
+            list-style: none;
+        }
+
+        .landing-nav-links a {
+            color: var(--apex-text-secondary);
+            font-size: 13px;
+            font-weight: 650;
+            white-space: nowrap;
+        }
+
+        .landing-nav-links a:hover {
+            color: var(--apex-primary);
+        }
+
+        .landing-copy {
+            width: 100%;
+            max-width: 590px;
+            margin: auto 0;
+        }
+
+        .splash-title {
+            font-size: clamp(42px, 3.8vw, 56px);
+            font-weight: 900;
+            line-height: 1.04;
+            color: var(--apex-text-main);
+            letter-spacing: -2.5px;
+            margin-bottom: 22px;
+        }
+
+        .splash-subtitle {
+            font-size: 17px;
+            line-height: 1.65;
+            color: var(--apex-text-muted);
+            margin-bottom: 30px;
+            max-width: 470px;
+        }
+
+        .splash-btn-get-started {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            background-color: var(--apex-primary);
+            color: #FFFFFF;
+            font-size: 15px;
+            font-weight: 750;
+            padding: 15px 22px;
+            border-radius: var(--apex-radius);
+            text-decoration: none;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+            align-self: flex-start;
+            border: 1px solid var(--apex-primary);
+        }
+
+        .splash-btn-get-started:hover {
+            background-color: var(--apex-primary-hover);
+            border-color: var(--apex-primary-hover);
+            color: #FFFFFF;
+            transform: translateY(-1px);
+        }
+
+        .splash-btn-get-started span {
+            font-size: 19px;
+            line-height: 1;
+        }
+
+        .trust-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 40px;
+            padding-top: 22px;
+            border-top: 1px solid var(--apex-border-subtle);
+        }
+
+        .trust-item {
+            color: var(--apex-text-secondary);
+            font-size: 12px;
+            font-weight: 650;
+            line-height: 1.45;
+        }
+
+        .trust-item strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--apex-text-main);
+            font-size: 13px;
+        }
+
+        .vehicle-caption {
+            position: absolute;
+            bottom: 32px;
+            left: 32px;
+            padding: 12px 16px;
+            background: var(--apex-primary);
+            border: 1px solid var(--apex-primary);
+            color: #FFFFFF;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .vehicle-caption strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .splash-bottom-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--apex-text-muted);
+        }
+
+        .splash-bottom-bar a {
+            color: var(--apex-primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .splash-bottom-bar a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .splash-split-container {
+                grid-template-columns: 1fr;
+            }
+            .splash-media-half {
+                min-height: 0;
+                height: clamp(280px, 42vh, 420px);
+            }
+            .splash-media-half img {
+                height: 100%;
+            }
+            .splash-content-half {
+                min-height: 0;
+                gap: 56px;
+                padding: 28px clamp(24px, 7vw, 64px) 32px;
+            }
+            .landing-nav {
+                margin-bottom: 32px;
+            }
+            .landing-copy {
+                margin: 0;
+            }
+            .splash-title {
+                max-width: 600px;
+                font-size: clamp(38px, 8vw, 56px);
+            }
+            .splash-bottom-bar {
+                padding-top: 20px;
+                border-top: 1px solid var(--apex-border-subtle);
+            }
+        }
+
+        @media (max-width: 520px) {
+            .splash-media-half {
+                height: 280px;
+            }
+            .vehicle-caption {
+                bottom: 16px;
+                left: 16px;
+            }
+            .splash-content-half {
+                gap: 42px;
+                padding: 22px 22px 26px;
+            }
+            .landing-nav {
+                align-items: flex-start;
+                gap: 16px;
+            }
+            .landing-brand {
+                font-size: 16px;
+            }
+            .landing-nav-links {
+                gap: 12px;
+            }
+            .landing-nav-links a {
+                font-size: 12px;
+            }
+            .landing-nav-links li:nth-child(2) {
+                display: none;
+            }
+            .splash-title {
+                font-size: 40px;
+                letter-spacing: -1.7px;
+            }
+            .splash-subtitle {
+                font-size: 15px;
+            }
+            .trust-row {
+                gap: 10px;
+                margin-top: 30px;
+                padding-top: 18px;
+            }
+            .trust-item {
+                font-size: 11px;
+            }
+            .trust-item strong {
+                font-size: 12px;
+            }
+            .splash-bottom-bar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="splash-split-container">
+    <div class="splash-media-half" aria-label="Featured vehicle">
+        <img src="assets/images/toyota fortuner.jpg" alt="Toyota Fortuner available in the APEX rental fleet">
+        <div class="vehicle-caption">
+            <strong>Toyota Fortuner</strong>
+            One of the vehicles in our Zambales fleet
+        </div>
+    </div>
+
+    <div class="splash-content-half">
+        <header class="landing-nav">
+            <a href="index.html" class="landing-brand" aria-label="APEX Car Rental home"><span>APEX</span> RENTALS</a>
+            <nav aria-label="Main navigation">
+                <ul class="landing-nav-links">
+                    <li><a href="fleet.html">Fleet</a></li>
+                    <li><a href="track.html">Tracking</a></li>
+                    <li><a href="login.html">Sign in</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="landing-copy">
+            <h1 class="splash-title">Find your ride<br>in Zambales.</h1>
+            <p class="splash-subtitle">
+                Make your next trip easier with a vehicle that fits your plans. Browse our fleet*- , compare clear daily rates, and choose a convenient pickup hub.
+            </p>
+
+            <a href="fleet.html" class="splash-btn-get-started">
+                Browse available cars <span aria-hidden="true">&rarr;</span>
+                
+
+</body>
+</html>

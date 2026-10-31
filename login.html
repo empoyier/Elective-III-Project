@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <title>Sign In | APEX Car Rental Services</title>
+    <link rel="stylesheet" href="assets/css/apex-theme.css">
+    <link rel="stylesheet" href="assets/css/customer.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+</head>
+
+<body>
+
+    <header class="site-nav">
+        <div class="container-wide nav-inner">
+            <a href="index.html" class="brand-link">
+                <span class="brand-badge">APEX</span>
+                <span class="brand-name">Car Rental Services</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="fleet.html">Select Vehicle</a></li>
+                <li><a href="track.html">Simulated Tracking</a></li>
+                <li><a href="my-bookings.html">My Reservations</a></li>
+                <li><a href="admin/index.html" id="nav-admin-link"
+                        style="display:none; color:#38BDF8; font-weight:700;">Admin Dashboard &rarr;</a></li>
+            </ul>
+            <div class="nav-actions" id="nav-actions">
+                <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+                <a href="register.html" class="btn btn-primary btn-sm">Register</a>
+            </div>
+        </div>
+    </header>
+    <main>
+
+        <div class="container" style="max-width:480px; padding:60px 20px 100px;">
+            <div class="card" style="border-top:4px solid var(--apex-primary);">
+                <div class="card-header">
+                    <h1 class="card-title" style="font-size:18px;">Sign In to APEX Services</h1>
+                </div>
+                <div class="card-body">
+                    <div id="login-alert" class="alert alert-danger" style="display:none;"></div>
+
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label class="form-label" for="login_email">Email Address</label>
+                            <input type="email" name="email" id="login_email" class="form-control" required
+                                placeholder="name@domain.ph">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="login_password">Password</label>
+                            <input type="password" name="password" id="login_password" class="form-control" required
+                                placeholder="Enter your password">
+                        </div>
+
+                        <button type="submit" id="btn-submit" class="btn btn-primary"
+                            style="width:100%; padding:12px; margin-top:8px;">
+                            Sign In &rarr;
+                        </button>
+                    </form>
+
+                    <div
+                        style="margin-top:24px; padding-top:16px; border-top:1px solid var(--apex-border-subtle); text-align:center; font-size:13px;">
+                        Don't have an account yet? <a href="register.html" style="font-weight:700;">Create Customer
+                            Account</a>
+                    </div>
+
+                    <!-- Demo Credentials Quick Fill -->
+                    <div
+                        style="margin-top:24px; background:#F8FAFC; border:1px solid var(--apex-border-crisp); padding:16px; border-radius:4px;">
+                        <h4
+                            style="font-size:12px; font-weight:700; color:var(--apex-text-muted); text-transform:uppercase; margin-bottom:10px;">
+                            One-Click Demo Accounts</h4>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                onclick="fillCredentials('admin@apexrentals.ph', 'admin123')">Administrator
+                                (admin@apexrentals.ph)</button>
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                onclick="fillCredentials('staff@apexrentals.ph', 'staff123')">Fleet Staff
+                                (staff@apexrentals.ph)</button>
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                onclick="fillCredentials('customer@example.ph', 'customer123')">Customer Juan
+                                (customer@example.ph)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <span class="brand-badge">APEX</span>
+                    <span style="font-size:16px; font-weight:700; color:#FFFFFF;">Car Rental Services</span>
+                </div>
+                <p style="font-size:13px; line-height:1.6; color:#FFFFFF; margin-bottom:14px;">
+                    A web-based car rental management system delivering streamlined vehicle reservations, date-based
+                    availability conflict prevention, and simulated real-time GPS vehicle tracking across the
+                    Philippines.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="fleet.html">Browse All Vehicles</a></li>
+                    <li><a href="my-bookings.html">My Reservations</a></li>
+                    <li><a href="track.html">Live Simulated Tracking</a></li>
+                    <li><a href="login.html">Client Sign In</a></li>
+                    <li><a href="admin/index.html">Fleet Operations Portal</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            <div>&copy; 2026 APEX Car Rental Services. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script>
+        function fillCredentials(email, pass) {
+            document.getElementById('login_email').value = email;
+            document.getElementById('login_password').value = pass;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            initPublicHeader('login');
+            const user = await getCurrentUser();
+            if (user) {
+                const role = user.app_metadata?.role || user.user_metadata?.role || 'customer';
+                window.location.href = (role === 'admin' || role === 'staff') ? 'admin/index.html' : 'my-bookings.html';
+                return;
+            }
+
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login_email').value.trim();
+                const password = document.getElementById('login_password').value;
+                const alertEl = document.getElementById('login-alert');
+                const submitBtn = document.getElementById('btn-submit');
+
+                alertEl.style.display = 'none';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Authenticating...';
+
+                try {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+
+                    const role = data.user.app_metadata?.role || data.user.user_metadata?.role || 'customer';
+                    const params = new URLSearchParams(window.location.search);
+                    const redirect = params.get('redirect');
+
+                    if (redirect && !redirect.includes('login.html')) {
+                        window.location.href = redirect;
+                    } else if (role === 'admin' || role === 'staff') {
+                        window.location.href = 'admin/index.html';
+                    } else {
+                        window.location.href = 'my-bookings.html';
+                    }
+                } catch (err) {
+                    alertEl.textContent = err.message || 'Authentication failed. Please verify credentials.';
+                    alertEl.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Sign In →';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
