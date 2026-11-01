@@ -20,8 +20,8 @@
 <div style="display:flex; min-height:100vh;">
     <!-- Sidebar -->
     <aside style="width:260px; background:#0B132B; border-right:1px solid #1E293B; color:#CBD5E1; display:flex; flex-direction:column; flex-shrink:0;">
-        <div style="padding:22px 20px; border-bottom:1px solid #1E293B; display:flex; align-items:center; gap:10px;">
-            <span class="brand-badge">APEX</span>
+        <div style="padding:22px 20px; border-bottom:1px solid #1E293B; display:flex; flex-direction:column; align-items:flex-start; gap:12px;">
+            <img class="apex-logo apex-logo-on-dark" src="../assets/images/apex-new-logo.png" alt="APEX Car Rental Services" style="width:190px;">
             <div>
                 <div style="font-weight:800; font-size:15px; color:#FFFFFF;">Fleet Operations</div>
                 <div style="font-size:11px; color:#94A3B8;">Admin Control Center</div>
@@ -29,16 +29,15 @@
         </div>
         <nav style="padding:20px 0; flex:1;">
             <div style="font-size:11px; font-weight:700; color:#64748B; padding:0 20px 8px; text-transform:uppercase;">Operations</div>
-            <a href="index.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">📊 Dashboard Overview</a>
-            <a href="bookings.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">📑 Rental Workflow Queue</a>
-            <a href="fleet-tracking.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">🛰 Master Fleet Live Map</a>
+            <a href="index.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;"> Dashboard Overview</a>
+            <a href="bookings.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;"> Rental Workflow Queue</a>
             <div style="font-size:11px; font-weight:700; color:#64748B; padding:20px 20px 8px; text-transform:uppercase;">Fleet & Inventory</div>
-            <a href="vehicles.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">🚗 Vehicle Fleet</a>
-            <a href="maintenance.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#FFFFFF; background:#1E293B; border-left:4px solid var(--apex-primary);">🔧 Maintenance Log</a>
-            <a href="customers.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">👥 Customer Accounts</a>
+            <a href="vehicles.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;"> Vehicle Fleet</a>
+            <a href="maintenance.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#FFFFFF; background:#1E293B; border-left:4px solid var(--apex-primary);"> Maintenance Log</a>
+            <a href="customers.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;"> Customer Accounts</a>
         </nav>
         <div style="padding:16px 20px; border-top:1px solid #1E293B; font-size:13px;">
-            <a href="../index.html" style="color:#38BDF8; font-weight:600; display:block; margin-bottom:8px;">← Return to Public Website</a>
+            <a href="../index.html" style="color:var(--apex-primary); font-weight:600; display:block; margin-bottom:8px;">← Return to Public Website</a>
             <div style="color:#64748B; font-size:11px;">Logged in as <strong id="admin-user-name">Admin</strong></div>
         </div>
     </aside>
@@ -207,7 +206,7 @@ async function loadMaintenance() {
                         ${m.status !== 'completed' ? `
                             <button onclick="markCompleted(${m.id}, ${m.vehicle_id})" class="btn btn-primary btn-sm">Mark Completed</button>
                         ` : `
-                            <span style="font-size:12px; color:var(--apex-success);">✓ Completed</span>
+                            <button onclick="deleteMaintenanceRecord(${m.id})" class="btn btn-danger btn-sm">Delete Log</button>
                         `}
                     </td>
                 </tr>
@@ -233,6 +232,36 @@ async function markCompleted(maintId, vehId) {
         loadMaintenance();
     } catch (e) {
         alert(e.message);
+    }
+}
+
+async function deleteMaintenanceRecord(maintId) {
+    if (!confirm('Permanently delete this completed maintenance log? This action cannot be undone.')) return;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('maintenance')
+            .delete()
+            .eq('id', maintId)
+            .eq('status', 'completed')
+            .select('id')
+            .maybeSingle();
+
+        if (error) throw error;
+        if (!data) {
+            throw new Error('The completed maintenance record was not found. Refresh the page and try again.');
+        }
+
+        const msg = document.getElementById('maint-msg');
+        msg.className = 'alert alert-success';
+        msg.textContent = 'Completed maintenance log deleted.';
+        msg.style.display = 'block';
+        await loadMaintenance();
+    } catch (err) {
+        const msg = document.getElementById('maint-msg');
+        msg.className = 'alert alert-danger';
+        msg.textContent = `Unable to delete maintenance log: ${err.message}`;
+        msg.style.display = 'block';
     }
 }
 

@@ -50,13 +50,12 @@
             font-size: 13px;
             line-height: 1.4;
             pointer-events: none;
-            opacity: 0;
+            visibility: hidden;
             transform: translate(14px, 14px);
-            transition: opacity 0.12s ease;
         }
 
         .image-owner-tooltip.is-visible {
-            opacity: 1;
+            visibility: visible;
         }
 
         .splash-content-half {
@@ -84,15 +83,15 @@
         }
 
         .landing-brand {
-            color: var(--apex-text-main);
-            font-size: 19px;
-            font-weight: 900;
-            letter-spacing: 1.4px;
-            white-space: nowrap;
+            display: block;
+            width: 190px;
+            flex-shrink: 0;
         }
 
-        .landing-brand span {
-            color: var(--apex-primary);
+        .landing-brand img {
+            display: block;
+            width: 100%;
+            height: auto;
         }
 
         .landing-nav-links {
@@ -188,23 +187,6 @@
             font-size: 13px;
         }
 
-        .vehicle-caption {
-            position: absolute;
-            bottom: 32px;
-            left: 32px;
-            padding: 12px 16px;
-            background: var(--apex-primary);
-            border: 1px solid var(--apex-primary);
-            color: #FFFFFF;
-            font-size: 12px;
-            line-height: 1.45;
-        }
-
-        .vehicle-caption strong {
-            display: block;
-            font-size: 14px;
-        }
-
         .splash-bottom-bar {
             display: flex;
             align-items: center;
@@ -260,10 +242,6 @@
             .splash-media-half {
                 height: 280px;
             }
-            .vehicle-caption {
-                bottom: 16px;
-                left: 16px;
-            }
             .splash-content-half {
                 gap: 42px;
                 padding: 22px 22px 26px;
@@ -273,7 +251,7 @@
                 gap: 16px;
             }
             .landing-brand {
-                font-size: 16px;
+                width: 150px;
             }
             .landing-nav-links {
                 gap: 12px;
@@ -313,21 +291,18 @@
 
 <div class="splash-split-container">
     <div class="splash-media-half" aria-label="Featured vehicle">
-        <img src="assets/images/4kwallpapercar.jpg" alt="Toyota Fortuner available in the APEX rental fleet">
-        <span class="image-owner-tooltip" role="tooltip" aria-hidden="true">@4kwallpapercars</span>
-        <div class="vehicle-caption">
-            <strong>Toyota Fortuner</strong>
-            One of the vehicles in our Zambales fleet
-        </div>
+        <img src="assets/images/4kwallpapercar.jpg" alt="Toyota Fortuner available in the APEX rental fleet"
+            tabindex="0" aria-describedby="image-owner-tooltip">
+        <span class="image-owner-tooltip" id="image-owner-tooltip" role="tooltip" aria-hidden="true">@4kwallpapercars</span>
     </div>
 
     <div class="splash-content-half">
         <header class="landing-nav">
-            <a href="index.html" class="landing-brand" aria-label="APEX Car Rental home"><span>APEX</span> RENTALS</a>
+            <a href="index.html" class="landing-brand" aria-label="APEX Car Rental home"><img src="assets/images/apex-new-logo.png" alt="APEX Car Rental Services"></a>
             <nav aria-label="Main navigation">
                 <ul class="landing-nav-links">
                     <li><a href="fleet.html">Fleet</a></li>
-                    <li><a href="track.html">Tracking</a></li>
+                    <li><a href="my-bookings.html">My reservations</a></li>
                     <li><a href="login.html">Sign in</a></li>
                 </ul>
             </nav>
@@ -345,9 +320,19 @@
     const featuredImage = document.querySelector('.splash-media-half img');
     const imageOwnerTooltip = document.querySelector('.image-owner-tooltip');
 
+    function showImageCredit() {
+        imageOwnerTooltip.classList.add('is-visible');
+        imageOwnerTooltip.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideImageCredit() {
+        imageOwnerTooltip.classList.remove('is-visible');
+        imageOwnerTooltip.setAttribute('aria-hidden', 'true');
+    }
+
     featuredImage.addEventListener('pointerenter', (event) => {
         if (event.pointerType !== 'touch') {
-            imageOwnerTooltip.classList.add('is-visible');
+            showImageCredit();
         }
     });
 
@@ -365,9 +350,14 @@
         imageOwnerTooltip.style.top = `${Math.max(8, top)}px`;
     });
 
-    featuredImage.addEventListener('pointerleave', () => {
-        imageOwnerTooltip.classList.remove('is-visible');
+    featuredImage.addEventListener('pointerleave', hideImageCredit);
+    featuredImage.addEventListener('focus', () => {
+        const imageBounds = featuredImage.getBoundingClientRect();
+        imageOwnerTooltip.style.left = `${imageBounds.left + 14}px`;
+        imageOwnerTooltip.style.top = `${imageBounds.top + 14}px`;
+        showImageCredit();
     });
+    featuredImage.addEventListener('blur', hideImageCredit);
 </script>
 </body>
 </html>

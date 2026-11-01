@@ -7,33 +7,133 @@
     <title>Register Customer Account | APEX</title>
     <link rel="stylesheet" href="assets/css/apex-theme.css">
     <link rel="stylesheet" href="assets/css/customer.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #FFFFFF;
+        }
+
+        .auth-main {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(400px, 0.9fr);
+            align-items: stretch;
+        }
+
+        .auth-brand-panel {
+                position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(40px, 7vw, 100px);
+            background: #EEF5FF;
+            text-align: center;
+        }
+
+        .auth-brand-panel::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: -90px;
+            width: 180px;
+            height: 100%;
+            border-radius: 50%;
+            background: #FFFFFF;
+            pointer-events: none;
+        }
+
+        .auth-brand {
+            display: block;
+            width: min(100%, 420px);
+            height: auto;
+            margin: 0 auto 32px;
+        }
+
+        .auth-brand-title {
+            max-width: 560px;
+            color: #0F172A;
+            font-size: clamp(28px, 3.2vw, 44px);
+            font-weight: 800;
+            line-height: 1.12;
+            letter-spacing: -1.2px;
+            margin-bottom: 14px;
+        }
+
+        .auth-brand-copy {
+            max-width: 430px;
+            color: #475569;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .auth-form-panel {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(28px, 5vw, 72px);
+            background: #FFFFFF;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .auth-card {
+            border-top: 4px solid var(--apex-primary);
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+        }
+
+        @media (max-width: 1024px) {
+            .auth-main {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-brand-panel {
+                padding: 44px 24px 28px;
+            }
+
+            .auth-brand-panel::after {
+                display: none;
+            }
+
+            .auth-brand {
+                width: min(78vw, 380px);
+                margin-bottom: 20px;
+            }
+
+            .auth-brand-title {
+                font-size: 28px;
+            }
+
+            .auth-brand-copy {
+                font-size: 14px;
+            }
+
+            .auth-form-panel {
+                padding: 24px 20px 48px;
+            }
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-config.js"></script>
 </head>
 <body>
-
-<header class="site-nav">
-    <div class="container-wide nav-inner">
-        <a href="index.html" class="brand-link">
-            <span class="brand-badge">APEX</span>
-            <span class="brand-name">Car Rental Services</span>
-        </a>
-        <ul class="nav-links">
-            <li><a href="fleet.html">Select Vehicle</a></li>
-            <li><a href="track.html">Simulated Tracking</a></li>
-            <li><a href="my-bookings.html">My Reservations</a></li>
-            <li><a href="admin/index.html" id="nav-admin-link" style="display:none; color:#38BDF8; font-weight:700;">Admin Dashboard &rarr;</a></li>
-        </ul>
-        <div class="nav-actions" id="nav-actions">
-            <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
-            <a href="register.html" class="btn btn-primary btn-sm">Register</a>
-        </div>
-    </div>
-</header>
-<main>
-
-<div class="container" style="max-width:540px; padding:50px 20px 100px;">
-    <div class="card" style="border-top:4px solid var(--apex-primary);">
+<main class="auth-main">
+<section class="auth-brand-panel" aria-label="APEX Car Rental Services">
+    <a href="index.html" aria-label="APEX Car Rental home">
+        <img class="auth-brand" src="assets/images/apex-new-logo.png" alt="APEX Car Rental Services">
+    </a>
+    <h2 class="auth-brand-title">Start your next journey.</h2>
+    <p class="auth-brand-copy">Create an account to reserve a vehicle and keep your booking details close at hand.</p>
+</section>
+<section class="auth-form-panel">
+<div class="auth-container">
+    <div class="card auth-card">
         <div class="card-header">
             <h1 class="card-title" style="font-size:18px;">Create an APEX Account</h1>
         </div>
@@ -77,37 +177,11 @@
         </div>
     </div>
 </div>
-
+</section>
 </main>
-
-<footer class="site-footer">
-    <div class="container footer-grid">
-        <div class="footer-col">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <span class="brand-badge">APEX</span>
-                <span style="font-size:16px; font-weight:700; color:#FFFFFF;">Car Rental Services</span>
-            </div>
-            <p style="font-size:13px; line-height:1.6; color:#FFFFFF;">
-                A web-based car rental management system delivering streamlined vehicle reservations and real-time tracking across the Philippines.
-            </p>
-        </div>
-        <div class="footer-col">
-            <h4>Quick Links</h4>
-            <ul>
-                <li><a href="fleet.html">Browse All Vehicles</a></li>
-                <li><a href="my-bookings.html">My Reservations</a></li>
-                <li><a href="login.html">Client Sign In</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="container footer-bottom">
-        <div>&copy; 2026 APEX Car Rental Services. All rights reserved.</div>
-    </div>
-</footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-    initPublicHeader('register');
     const user = await getCurrentUser();
     if (user) {
         window.location.href = 'my-bookings.html';

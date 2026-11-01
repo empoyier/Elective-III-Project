@@ -1,133 +1,287 @@
-/* Admin operations theme */
+/* Shared admin dashboard theme: crisp white surfaces with Facebook blue accents. */
 :root {
-    --dm-bg: #0B132B;
-    --dm-card-bg: #121E34;
-    --dm-card-bg-hover: #192942;
-    --dm-table-bg: #111C30;
-    --dm-table-hover: #1A2940;
-    --dm-input-bg: #0E192C;
-    --dm-input-border: #34445D;
-    --dm-text: #F1F5F9;
-    --dm-primary: #1877F2;
-    --dm-primary-hover: #1669e0;
+    --dm-bg: #F0F2F5;
+    --dm-card-bg: #FFFFFF;
+    --dm-card-bg-hover: #FFFFFF;
+    --dm-table-bg: #FFFFFF;
+    --dm-table-hover: #F5F8FC;
+    --dm-input-bg: #FFFFFF;
+    --dm-input-border: #CCD0D5;
+    --dm-text: #1C1E21;
+    --dm-primary: var(--apex-primary);
+    --dm-primary-hover: var(--apex-primary-hover);
     --dm-radius: 8px;
     --dm-transition: 0.15s ease;
 }
 
 body {
     background: var(--dm-bg);
-    color: var(--dm-text);
+    color: var(--apex-text-main);
     font-family: var(--apex-font-sans);
 }
 
-.glass-card {
-    background: var(--dm-card-bg);
-    border-radius: var(--dm-radius);
-    border: 1px solid #263650;
-    box-shadow: 0 10px 28px rgba(0,0,0,.18);
-    overflow: hidden;
+body > div:first-of-type > aside {
+    background: #FFFFFF !important;
+    color: var(--apex-text-main) !important;
+    border-right: 1px solid #DADDE1 !important;
+}
+
+body > div:first-of-type > aside > div:first-child {
+    border-bottom-color: #DADDE1 !important;
+}
+
+body > div:first-of-type > aside > div:first-child > div > div:first-child {
+    color: var(--apex-text-main) !important;
+}
+
+body > div:first-of-type > aside > div:first-child > div > div:last-child,
+body > div:first-of-type > aside nav > div {
+    color: var(--apex-text-muted) !important;
+}
+
+body > div:first-of-type aside .nav-link {
+    color: #4B5563 !important;
+    border-left-color: transparent !important;
+    border-radius: 0 6px 6px 0;
+}
+
+body > div:first-of-type aside .nav-link:hover {
+    color: var(--apex-primary) !important;
+    background: #F0F2F5 !important;
+}
+
+body > div:first-of-type aside nav .nav-link[style*="var(--apex-primary)"] {
+    color: var(--apex-primary) !important;
+    background: #E7F3FF !important;
+    border-left-color: var(--apex-primary) !important;
+    font-weight: 700 !important;
+}
+
+body > div:first-of-type > aside > div:last-child {
+    border-top-color: #DADDE1 !important;
+    color: var(--apex-text-muted) !important;
+}
+
+body > div:first-of-type > aside > div:last-child > div {
+    color: var(--apex-text-muted) !important;
+}
+
+body > div:first-of-type > div > header {
+    background: #FFFFFF !important;
+    border-bottom: 1px solid #DADDE1 !important;
+    box-shadow: none;
+}
+
+body > div:first-of-type > div > header h1 {
+    color: var(--apex-text-main) !important;
+    font-weight: 700 !important;
+}
+
+body > div:first-of-type > div > main {
+    background: var(--dm-bg);
+}
+
+.card,
+.glass-card,
+.modal-content {
+    background: #FFFFFF;
+    color: var(--apex-text-main);
+    border: 1px solid #DADDE1;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .glass-card:hover {
-    background: var(--dm-card-bg-hover);
+    background: #FFFFFF;
 }
 
+.card-header,
 .glass-card .card-header {
-    background: #16243A;
-    border-color: #293A53;
+    background: #FFFFFF;
+    border-color: #E4E6EB;
 }
 
+.card-title,
 .glass-card .card-title {
-    color: var(--dm-text);
+    color: var(--apex-text-main);
+}
+
+body > div:first-of-type main .card[style*="border-left"] {
+    border-left-color: var(--apex-primary) !important;
+}
+
+body > div:first-of-type main #kpi-total,
+body > div:first-of-type main #kpi-available,
+body > div:first-of-type main #kpi-pending,
+body > div:first-of-type main #kpi-active,
+body > div:first-of-type main #kpi-revenue,
+body > div:first-of-type main #kpi-util {
+    color: var(--apex-primary) !important;
+}
+
+.table {
+    background: #FFFFFF;
+}
+
+.table th {
+    background: #F0F2F5;
+    color: #4B5563;
+    border-bottom-color: #DADDE1;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.table td {
+    border-bottom-color: #E4E6EB;
+}
+
+.table tr:hover td {
+    background: #F5F8FC;
 }
 
 .glass-table {
-    background: var(--dm-table-bg);
-    border-collapse: separate;
-    border-spacing: 0 6px;
-    width: 100%;
-}
-.glass-table thead th {
-    background: rgba(255,255,255,.06);
-    color: var(--dm-text);
-    font-weight: 600;
-    border: none;
-}
-.glass-table tbody tr {
-    background: var(--dm-card-bg);
-    transition: var(--dm-transition);
-}
-.glass-table tbody tr:hover {
-    background: var(--dm-table-hover);
+    background: #FFFFFF;
+    border-spacing: 0;
 }
 
+.glass-table thead th {
+    background: #F0F2F5;
+    color: #4B5563;
+}
+
+.glass-table tbody tr,
+.glass-table tbody tr:hover {
+    background: #FFFFFF;
+}
+
+.glass-table tbody tr:hover td {
+    background: #F5F8FC;
+}
+
+.form-control,
+body > div:first-of-type .form-control,
 .glass-input,
-.glass-input:focus {
-    background: var(--dm-input-bg);
-    color: var(--dm-text);
-    border: 1px solid var(--dm-input-border);
-    border-radius: var(--dm-radius);
-    padding: 0.55rem 0.75rem;
-    transition: var(--dm-transition);
+.glass-input:focus,
+body > div:first-of-type .form-control:focus {
+    color: var(--apex-text-main);
+    background: #FFFFFF;
+    border: 1px solid #CCD0D5;
+    border-radius: 6px;
 }
+
+.form-control::placeholder,
 .glass-input::placeholder {
-    color: rgba(255,255,255,.45);
+    color: #65676B;
 }
-.glass-input:focus {
-    border-color: var(--dm-primary);
-    box-shadow: 0 0 0 3px rgba(24,119,242,.15);
+
+.form-control:focus,
+.glass-input:focus,
+body > div:first-of-type .form-control:focus {
+    border-color: var(--apex-primary);
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.16);
+}
+
+body > div:first-of-type .badge:not(.badge-sim) {
+    background: transparent;
+    border-color: transparent;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body > div:first-of-type > div > header .badge-sim {
+    background: transparent;
+    color: var(--apex-primary);
+    border: 0;
+    padding: 0;
+    font-family: inherit;
 }
 
 .btn-primary {
-    background: var(--dm-primary);
-    border-color: var(--dm-primary);
+    background: var(--apex-primary);
+    border-color: var(--apex-primary);
     color: #FFFFFF;
 }
+
 .btn-primary:hover {
-    background: var(--dm-primary-hover);
-    border-color: var(--dm-primary-hover);
+    background: var(--apex-primary-hover);
+    border-color: var(--apex-primary-hover);
+}
+
+.btn-secondary {
+    background: #FFFFFF;
+    border-color: #CCD0D5;
+    color: var(--apex-text-main);
+}
+
+.btn-secondary:hover {
+    background: #F0F2F5;
+    border-color: #B8C0CC;
+    color: var(--apex-text-main);
 }
 
 .modal-content {
-    background: var(--dm-card-bg);
-    color: var(--dm-text);
-    border: 1px solid #34445D;
-    border-radius: var(--dm-radius);
+    border-color: #DADDE1;
 }
 
-.modal.fade .modal-dialog {
-    transition: transform .3s ease-out, opacity .3s ease-out;
-}
-.modal.show .modal-dialog {
-    transform: translate(0,0);
-    opacity: 1;
-}
-
+.glass-input,
 .action-btn {
-    opacity: .85;
-    transition: opacity var(--dm-transition);
+    transition: var(--dm-transition);
 }
-.action-btn:hover {
-    opacity: 1;
+
+.dashboard-kpis {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)) !important;
+    gap: 16px !important;
+}
+
+.dashboard-charts {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)) !important;
+    gap: 16px !important;
+}
+
+@media (max-width: 1440px) {
+    .dashboard-kpis {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .dashboard-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
 }
 
 ::-webkit-scrollbar {
     width: 8px;
 }
+
 ::-webkit-scrollbar-track {
-    background: var(--dm-bg);
+    background: #F0F2F5;
 }
+
 ::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,.2);
+    background: #BCC0C4;
     border-radius: 4px;
 }
 
-body > div:first-of-type .form-control {
-    color: var(--dm-text);
-    background-color: var(--dm-input-bg);
-    border-color: var(--dm-input-border);
+@media (max-width: 720px) {
+    body > div:first-of-type > aside {
+        border-right: 0 !important;
+        border-bottom: 1px solid #DADDE1 !important;
+    }
+
+    body > div:first-of-type aside .nav-link {
+        border: 0 !important;
+        border-radius: 6px;
+    }
+
+    .dashboard-charts {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
 }
 
-body > div:first-of-type .form-control:focus {
-    border-color: var(--dm-primary);
+@media (max-width: 520px) {
+    .dashboard-kpis {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
 }

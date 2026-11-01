@@ -15,12 +15,10 @@
 <header class="site-nav">
     <div class="container-wide nav-inner">
         <a href="index.html" class="brand-link">
-            <span class="brand-badge">APEX</span>
-            <span class="brand-name">Car Rental Services</span>
+            <img class="apex-logo" src="assets/images/apex-new-logo.png" alt="APEX Car Rental Services">
         </a>
         <ul class="nav-links">
             <li><a href="fleet.html">Select Vehicle</a></li>
-            <li><a href="track.html">Simulated Tracking</a></li>
             <li><a href="my-bookings.html" class="active">My Reservations</a></li>
             <li><a href="admin/index.html" id="nav-admin-link" style="display:none; color:#38BDF8; font-weight:700;">Admin Dashboard &rarr;</a></li>
         </ul>
@@ -35,7 +33,7 @@
     <div class="container">
         <h1 style="font-size:26px; font-weight:800; color:var(--apex-text-main); margin-bottom:4px;">Customer Dashboard</h1>
         <p style="font-size:14px; color:var(--apex-text-muted);">
-            Manage your vehicle reservations, review historical trips, and launch simulated real-time tracking for active rentals.
+            Review your reservation status, rental schedule, and booking history.
         </p>
     </div>
 </div>
@@ -43,14 +41,13 @@
 <div class="container" style="padding:32px 0 80px;">
     <div id="booking-msg" class="alert alert-success" style="display:none;"></div>
 
-    <!-- Active Trip Spotlight Banner -->
-    <div id="active-rental-banner" style="display:none;" class="card" style="border:2px solid var(--apex-primary); margin-bottom:32px; background:#F8FAFC;">
+    <!-- Active Rental Spotlight Banner -->
+    <div id="active-rental-banner" style="display:none; border:2px solid var(--apex-primary); margin-bottom:32px; background:#F8FAFC;" class="card">
         <div class="card-body" style="padding:28px;">
-            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:20px;">
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:20px;">
                 <div>
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                        <span class="badge badge-out_on_rental" style="font-size:12px; padding:4px 10px;">ACTIVE TRIP IN PROGRESS</span>
-                        <span class="badge badge-sim">SIMULATED GPS ACTIVE</span>
+                        <span class="badge badge-out_on_rental" style="font-size:12px; padding:4px 10px;">RENTAL IN PROGRESS</span>
                     </div>
                     <h2 style="font-size:22px; font-weight:800; color:var(--apex-text-main); margin-bottom:4px;" id="active-car-title">
                         Vehicle Name
@@ -60,9 +57,6 @@
                     </div>
                 </div>
 
-                <a id="active-track-btn" href="track.html" class="btn btn-primary btn-lg" style="box-shadow: 0 2px 6px rgba(0,120,215,0.25);">
-                    Launch Simulated Vehicle Tracker &rarr;
-                </a>
             </div>
         </div>
     </div>
@@ -70,7 +64,7 @@
     <!-- Bookings Table Card -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">All Reservations History</span>
+            <span class="card-title">Your Reservations</span>
             <a href="fleet.html" class="btn btn-primary btn-sm">+ Reserve Another Vehicle</a>
         </div>
         <div class="card-body" style="padding:0;">
@@ -138,14 +132,13 @@ async function loadBookings() {
             return;
         }
 
-        // Check for active out_on_rental
+        // Highlight any rental currently checked out to the customer.
         const active = bookings.find(b => b.status === 'out_on_rental');
         if (active) {
             const banner = document.getElementById('active-rental-banner');
             banner.style.display = 'block';
             document.getElementById('active-car-title').textContent = `${active.vehicles?.brand || ''} ${active.vehicles?.model || 'Rental Vehicle'}`;
             document.getElementById('active-car-meta').innerHTML = `Reference: <strong>${sanitize(active.booking_ref)}</strong> &bull; Plate: ${sanitize(active.vehicles?.license_plate || '')} &bull; Due: ${formatDateTime(active.return_datetime)}`;
-            document.getElementById('active-track-btn').href = `track.html?booking_id=${active.id}`;
         }
 
         document.getElementById('table-wrap').style.display = 'block';
@@ -154,14 +147,15 @@ async function loadBookings() {
         tbody.innerHTML = bookings.map(b => {
             const vehName = b.vehicles ? `${b.vehicles.brand} ${b.vehicles.model}` : 'Vehicle #' + b.vehicle_id;
             const vehPlate = b.vehicles?.license_plate || '—';
-            
             let actionHtml = '';
             if (b.status === 'out_on_rental') {
-                actionHtml = `<a href="track.html?booking_id=${b.id}" class="btn btn-primary btn-sm">Live Tracker &rarr;</a>`;
+                actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Rental in progress</span>`;
             } else if (b.status === 'pending' || b.status === 'approved') {
                 actionHtml = `<button onclick="cancelBooking(${b.id}, '${sanitize(b.booking_ref)}')" class="btn btn-danger btn-sm">Cancel</button>`;
-            } else {
+            } else if (b.status === 'returned') {
                 actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Completed</span>`;
+            } else {
+                actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Closed</span>`;
             }
 
             return `
@@ -174,7 +168,10 @@ async function loadBookings() {
                     <td style="font-size:13px;">${formatDateTime(b.pickup_datetime)}</td>
                     <td style="font-size:13px;">${formatDateTime(b.return_datetime)}</td>
                     <td><strong style="color:var(--apex-primary);">${formatPesos(b.total_amount)}</strong></td>
-                    <td><span class="badge badge-${sanitize(b.status)}">${sanitize(b.status.replace('_', ' ').toUpperCase())}</span></td>
+                    <td>
+                        <span class="badge badge-${sanitize(b.status)}">${sanitize(getBookingStatusLabel(b.status))}</span>
+                        <div style="font-size:11px; color:var(--apex-text-muted); margin-top:4px;">${sanitize(getBookingStatusDescription(b.status))}</div>
+                    </td>
                     <td>${actionHtml}</td>
                 </tr>
             `;
@@ -185,6 +182,30 @@ async function loadBookings() {
             <div class="alert alert-danger" style="margin:20px;">${sanitize(err.message)}</div>
         `;
     }
+}
+
+function getBookingStatusLabel(status) {
+    const labels = {
+        pending: 'PENDING REVIEW',
+        approved: 'APPROVED',
+        out_on_rental: 'PICKED UP',
+        returned: 'RETURNED',
+        cancelled: 'CANCELLED',
+        rejected: 'REJECTED'
+    };
+    return labels[status] || 'STATUS UNAVAILABLE';
+}
+
+function getBookingStatusDescription(status) {
+    const descriptions = {
+        pending: 'Awaiting review from our team.',
+        approved: 'Ready for pickup at your scheduled time.',
+        out_on_rental: 'Please return the vehicle by the due date.',
+        returned: 'Rental complete.',
+        cancelled: 'This reservation was cancelled.',
+        rejected: 'Contact our team if you need more information.'
+    };
+    return descriptions[status] || 'Contact our team for an update.';
 }
 
 async function cancelBooking(bookingId, ref) {

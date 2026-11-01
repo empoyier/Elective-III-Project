@@ -82,6 +82,48 @@ CREATE TABLE IF NOT EXISTS public.bookings (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Return inspection fields used by the admin booking workflow. The IF NOT EXISTS
+-- clauses also upgrade projects where the bookings table was created previously.
+ALTER TABLE public.bookings
+    ADD COLUMN IF NOT EXISTS odometer_reading INTEGER,
+    ADD COLUMN IF NOT EXISTS fuel_level_returned INTEGER,
+    ADD COLUMN IF NOT EXISTS has_damage BOOLEAN NOT NULL DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS damage_notes TEXT,
+    ADD COLUMN IF NOT EXISTS additional_charges NUMERIC(10, 2) NOT NULL DEFAULT 0.00;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'bookings_odometer_reading_nonnegative'
+          AND conrelid = 'public.bookings'::regclass
+    ) THEN
+        ALTER TABLE public.bookings
+            ADD CONSTRAINT bookings_odometer_reading_nonnegative
+            CHECK (odometer_reading IS NULL OR odometer_reading >= 0);
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'bookings_fuel_level_returned_range'
+          AND conrelid = 'public.bookings'::regclass
+    ) THEN
+        ALTER TABLE public.bookings
+            ADD CONSTRAINT bookings_fuel_level_returned_range
+            CHECK (fuel_level_returned IS NULL OR fuel_level_returned BETWEEN 0 AND 100);
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'bookings_additional_charges_nonnegative'
+          AND conrelid = 'public.bookings'::regclass
+    ) THEN
+        ALTER TABLE public.bookings
+            ADD CONSTRAINT bookings_additional_charges_nonnegative
+            CHECK (additional_charges >= 0);
+    END IF;
+END $$;
+
 -- CREATE TABLE IF NOT EXISTS does not add this relationship to an existing table.
 DO $$
 BEGIN
@@ -147,9 +189,6 @@ CREATE POLICY "Allow public all on bookings" ON public.bookings FOR ALL USING (t
 CREATE POLICY "Allow public all on booking_addons" ON public.booking_addons FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public all on maintenance" ON public.maintenance FOR ALL USING (true) WITH CHECK (true);
 
--- ===================================================================
--- Initial Seed Data: Categories, Add-ons & Vehicles
--- ===================================================================
 
 INSERT INTO public.vehicle_categories (id, name, slug, description, display_order) VALUES
 (1, 'Economy', 'economy', 'Fuel-efficient, compact hatchbacks and subcompact sedans.', 1),

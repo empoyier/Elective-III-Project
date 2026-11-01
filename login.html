@@ -8,35 +8,145 @@
     <title>Sign In | APEX Car Rental Services</title>
     <link rel="stylesheet" href="assets/css/apex-theme.css">
     <link rel="stylesheet" href="assets/css/customer.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #FFFFFF;
+        }
+
+        .auth-main {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(400px, 0.9fr);
+            align-items: stretch;
+        }
+
+        .auth-brand-panel {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(40px, 7vw, 100px);
+            background: #EEF5FF;
+            text-align: center;
+        }
+
+        .auth-brand-panel::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: -90px;
+            width: 180px;
+            height: 100%;
+            border-radius: 50%;
+            background: #FFFFFF;
+            pointer-events: none;
+        }
+
+        .auth-brand {
+            display: block;
+            width: min(100%, 420px);
+            height: auto;
+            margin: 0 auto 32px;
+        }
+
+        .auth-brand-title {
+            max-width: 560px;
+            color: #0F172A;
+            font-size: clamp(28px, 3.2vw, 44px);
+            font-weight: 800;
+            line-height: 1.12;
+            letter-spacing: -1.2px;
+            margin-bottom: 14px;
+        }
+
+        .auth-brand-copy {
+            max-width: 430px;
+            color: #475569;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .auth-form-panel {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(28px, 5vw, 72px);
+            background: #FFFFFF;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .card.auth-card {
+            border-top: 4px solid var(--apex-primary);
+            border-radius: 24px !important;
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+            transform: translateX(-clamp(20px, 4vw, 56px));
+        }
+
+        .auth-card .card-header {
+            border-radius: 20px 20px 0 0;
+        }
+
+        @media (max-width: 1024px) {
+            .auth-main {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-brand-panel {
+                padding: 44px 24px 28px;
+            }
+
+            .auth-brand-panel::after {
+                display: none;
+            }
+
+            .auth-brand {
+                width: min(78vw, 380px);
+                margin-bottom: 20px;
+            }
+
+            .auth-brand-title {
+                font-size: 28px;
+            }
+
+            .auth-brand-copy {
+                font-size: 14px;
+            }
+
+            .auth-form-panel {
+                padding: 24px 20px 48px;
+            }
+
+            .card.auth-card {
+                transform: none;
+            }
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-config.js"></script>
 </head>
 
 <body>
-
-    <header class="site-nav">
-        <div class="container-wide nav-inner">
-            <a href="index.html" class="brand-link">
-                <span class="brand-badge">APEX</span>
-                <span class="brand-name">Car Rental Services</span>
+    <main class="auth-main">
+        <section class="auth-brand-panel" aria-label="APEX Car Rental Services">
+            <a href="index.html" aria-label="APEX Car Rental home">
+                <img class="auth-brand" src="assets/images/apex-new-logo.png" alt="APEX Car Rental Services">
             </a>
-            <ul class="nav-links">
-                <li><a href="fleet.html">Select Vehicle</a></li>
-                <li><a href="track.html">Simulated Tracking</a></li>
-                <li><a href="my-bookings.html">My Reservations</a></li>
-                <li><a href="admin/index.html" id="nav-admin-link"
-                        style="display:none; color:#38BDF8; font-weight:700;">Admin Dashboard &rarr;</a></li>
-            </ul>
-            <div class="nav-actions" id="nav-actions">
-                <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
-                <a href="register.html" class="btn btn-primary btn-sm">Register</a>
-            </div>
-        </div>
-    </header>
-    <main>
-
-        <div class="container" style="max-width:480px; padding:60px 20px 100px;">
-            <div class="card" style="border-top:4px solid var(--apex-primary);">
+            <h2 class="auth-brand-title">Your next ride starts here.</h2>
+            <p class="auth-brand-copy">Find the right car for your plans, reserve with confidence, and keep your rental details in one place.</p>
+        </section>
+        <section class="auth-form-panel">
+        <div class="auth-container">
+            <div class="card auth-card">
                 <div class="card-header">
                     <h1 class="card-title" style="font-size:18px;">Sign In to APEX Services</h1>
                 </div>
@@ -68,67 +178,25 @@
                             Account</a>
                     </div>
 
-                    <!-- Demo Credentials Quick Fill -->
-                    <div
-                        style="margin-top:24px; background:#F8FAFC; border:1px solid var(--apex-border-crisp); padding:16px; border-radius:4px;">
-                        <h4
-                            style="font-size:12px; font-weight:700; color:var(--apex-text-muted); text-transform:uppercase; margin-bottom:10px;">
-                            One-Click Demo Accounts</h4>
-                        <div style="display:flex; flex-direction:column; gap:8px;">
-                            <button type="button" class="btn btn-secondary btn-sm"
-                                onclick="fillCredentials('admin@apexrentals.ph', 'admin123')">Administrator
-                                (admin@apexrentals.ph)</button>
-                            <button type="button" class="btn btn-secondary btn-sm"
-                                onclick="fillCredentials('staff@apexrentals.ph', 'staff123')">Fleet Staff
-                                (staff@apexrentals.ph)</button>
-                            <button type="button" class="btn btn-secondary btn-sm"
-                                onclick="fillCredentials('customer@example.ph', 'customer123')">Customer Juan
-                                (customer@example.ph)</button>
-                        </div>
-                    </div>
+                    <p style="margin-top:20px; color:var(--apex-text-muted); font-size:12px; text-align:center;">
+                        Sign in with an account created in Supabase Authentication. Database seed accounts are not automatically Supabase Auth accounts.
+                    </p>
                 </div>
             </div>
         </div>
-
+        </section>
     </main>
 
-    <footer class="site-footer">
-        <div class="container footer-grid">
-            <div class="footer-col">
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span class="brand-badge">APEX</span>
-                    <span style="font-size:16px; font-weight:700; color:#FFFFFF;">Car Rental Services</span>
-                </div>
-                <p style="font-size:13px; line-height:1.6; color:#FFFFFF; margin-bottom:14px;">
-                    A web-based car rental management system delivering streamlined vehicle reservations, date-based
-                    availability conflict prevention, and simulated real-time GPS vehicle tracking across the
-                    Philippines.
-                </p>
-            </div>
-            <div class="footer-col">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="fleet.html">Browse All Vehicles</a></li>
-                    <li><a href="my-bookings.html">My Reservations</a></li>
-                    <li><a href="track.html">Live Simulated Tracking</a></li>
-                    <li><a href="login.html">Client Sign In</a></li>
-                    <li><a href="admin/index.html">Fleet Operations Portal</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="container footer-bottom">
-            <div>&copy; 2026 APEX Car Rental Services. All rights reserved.</div>
-        </div>
-    </footer>
-
     <script>
-        function fillCredentials(email, pass) {
-            document.getElementById('login_email').value = email;
-            document.getElementById('login_password').value = pass;
+        function getLoginErrorMessage(error) {
+            if (error.status === 500 && error.message === 'Database error querying schema') {
+                return 'Supabase Auth returned a database error for this account (HTTP 500). The Auth service is responding, so this is not a normal incorrect-password error. Ask the Supabase project administrator to inspect this user under Authentication → Users and check the Auth logs before resetting or recreating the account.';
+            }
+
+            return error.message || 'Authentication failed. Please verify credentials.';
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            initPublicHeader('login');
             const user = await getCurrentUser();
             if (user) {
                 const role = user.app_metadata?.role || user.user_metadata?.role || 'customer';
@@ -163,7 +231,8 @@
                         window.location.href = 'my-bookings.html';
                     }
                 } catch (err) {
-                    alertEl.textContent = err.message || 'Authentication failed. Please verify credentials.';
+                    console.error('Sign-in failed:', err);
+                    alertEl.textContent = getLoginErrorMessage(err);
                     alertEl.style.display = 'block';
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Sign In →';

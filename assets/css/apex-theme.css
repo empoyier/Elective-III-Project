@@ -180,9 +180,23 @@ img {
 .brand-link {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0;
     text-decoration: none;
     color: var(--apex-text-main);
+}
+
+.apex-logo {
+    display: block;
+    width: 180px;
+    max-width: 100%;
+    height: auto;
+}
+
+.apex-logo-on-dark {
+    box-sizing: content-box;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: #FFFFFF;
 }
 
 .brand-badge {
@@ -514,6 +528,9 @@ img {
     }
     .brand-link {
         gap: 8px;
+    }
+    .brand-link .apex-logo {
+        width: 140px;
     }
     .brand-badge {
         font-size: 14px;

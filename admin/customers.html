@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Customer Accounts Management â€” APEX Admin</title>
+    <title>Customer Accounts Management &mdash; APEX Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../assets/css/apex-theme.css" />
     <link rel="stylesheet" href="../assets/css/admin.css" />
@@ -16,8 +16,8 @@
 
     <!-- Sidebar -->
     <aside style="width:260px; background:#0B132B; border-right:1px solid #1E293B; color:#CBD5E1; display:flex; flex-direction:column; flex-shrink:0;">
-        <div style="padding:22px 20px; border-bottom:1px solid #1E293B; display:flex; align-items:center; gap:10px;">
-            <span class="brand-badge">APEX</span>
+        <div style="padding:22px 20px; border-bottom:1px solid #1E293B; display:flex; flex-direction:column; align-items:flex-start; gap:12px;">
+            <img class="apex-logo apex-logo-on-dark" src="../assets/images/apex-new-logo.png" alt="APEX Car Rental Services" style="width:190px;">
             <div>
                 <div style="font-weight:800; font-size:15px; color:#FFFFFF;">Fleet Operations</div>
                 <div style="font-size:11px; color:#94A3B8;">Admin Control Center</div>
@@ -25,16 +25,15 @@
         </div>
         <nav style="padding:20px 0; flex:1;">
             <div style="font-size:11px; font-weight:700; color:#64748B; padding:0 20px 8px; text-transform:uppercase;">Operations</div>
-            <a href="index.html" id="nav-dashboard" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">ðŸ“Š Dashboard Overview</a>
-            <a href="bookings.html" id="nav-bookings" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">ðŸ“‘ Rental Workflow Queue</a>
-            <a href="fleet-tracking.html" id="nav-tracking" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">ðŸ›° Master Fleet Live Map</a>
+            <a href="index.html" id="nav-dashboard" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Dashboard Overview</a>
+            <a href="bookings.html" id="nav-bookings" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Rental Workflow Queue</a>
             <div style="font-size:11px; font-weight:700; color:#64748B; padding:20px 20px 8px; text-transform:uppercase;">Fleet &amp; Inventory</div>
-            <a href="vehicles.html" id="nav-vehicles" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">ðŸš— Vehicle Fleet</a>
-            <a href="maintenance.html" id="nav-maintenance" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">ðŸ”§ Maintenance Log</a>
-            <a href="customers.html" id="nav-customers" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">ðŸ‘¥ Customer Accounts</a>
+            <a href="vehicles.html" id="nav-vehicles" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Vehicle Fleet</a>
+            <a href="maintenance.html" id="nav-maintenance" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Maintenance Log</a>
+            <a href="customers.html" id="nav-customers" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Customer Accounts</a>
         </nav>
         <div style="padding:16px 20px; border-top:1px solid #1E293B; font-size:13px;">
-            <a href="../index.html" style="color:#38BDF8; font-weight:600; display:block; margin-bottom:8px;">â† Return to Public Website</a>
+            <a href="../index.html" style="color:var(--apex-primary); font-weight:600; display:block; margin-bottom:8px;">&larr; Return to Public Website</a>
             <div style="color:#64748B; font-size:11px;">Logged in as <strong id="user-name"></strong> (<span id="user-role"></span>)</div>
         </div>
     </aside>
@@ -97,7 +96,7 @@ async function guardAdmin() {
 }
 function highlightNav() {
     const page = window.location.pathname.split('/').pop();
-    const map = { 'index.html':'nav-dashboard','bookings.html':'nav-bookings','fleet-tracking.html':'nav-tracking','vehicles.html':'nav-vehicles','maintenance.html':'nav-maintenance','customers.html':'nav-customers' };
+    const map = { 'index.html':'nav-dashboard','bookings.html':'nav-bookings','vehicles.html':'nav-vehicles','maintenance.html':'nav-maintenance','customers.html':'nav-customers' };
     document.querySelectorAll('.nav-link').forEach(el => el.style.cssText += 'color:#94A3B8;background:transparent;border-left:4px solid transparent;');
     const el = document.getElementById(map[page] || 'nav-dashboard');
     if (el) el.style.cssText += 'color:#FFFFFF;background:#1E293B;border-left:4px solid var(--apex-primary);';
@@ -105,7 +104,7 @@ function highlightNav() {
 async function signOut() { await _supabase.auth.signOut(); window.location.href = 'login.html'; }
 guardAdmin(); highlightNav();
 
-function formatPesos(n){ return 'â‚± ' + Number(n).toLocaleString('en-PH',{minimumFractionDigits:2}); }
+function formatPesos(n){ return '\u20B1 ' + Number(n).toLocaleString('en-PH',{minimumFractionDigits:2, maximumFractionDigits:2}); }
 function fmtDate(d){ return new Date(d).toLocaleDateString('en-PH',{month:'short',day:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
 
 async function loadCustomers() {
@@ -148,12 +147,12 @@ async function loadCustomers() {
             ? `<span class="badge badge-available">ACTIVE</span>`
             : `<span class="badge badge-blocked">BLOCKED</span>`;
         const actionBtn = c.status === 'active'
-            ? `<button class="btn btn-danger btn-sm" onclick="toggleStatus(${c.id}, 'blocked')">Block Account</button>`
-            : `<button class="btn btn-secondary btn-sm" style="color:var(--apex-success);border-color:#A7F3D0;" onclick="toggleStatus(${c.id}, 'active')">Unblock Account</button>`;
+            ? `<button class="btn btn-danger btn-sm" onclick="toggleStatus('${escHtml(c.id)}', 'blocked')">Block Account</button>`
+            : `<button class="btn btn-secondary btn-sm" style="color:var(--apex-success);border-color:#A7F3D0;" onclick="toggleStatus('${escHtml(c.id)}', 'active')">Unblock Account</button>`;
         return `<tr>
-            <td><strong>${escHtml(c.name || 'â€”')}</strong></td>
-            <td>${escHtml(c.email || 'â€”')}</td>
-            <td>${escHtml(c.phone || 'â€”')}</td>
+            <td><strong>${escHtml(c.name || '—')}</strong></td>
+            <td>${escHtml(c.email || '—')}</td>
+            <td>${escHtml(c.phone || '—')}</td>
             <td><span style="font-family:monospace;">${escHtml(c.license_number || 'Not Provided')}</span></td>
             <td><strong>${totalBookings}</strong> reservation(s)</td>
             <td>${statusBadge}</td>
@@ -189,4 +188,3 @@ document.addEventListener('DOMContentLoaded', loadCustomers);
 <script src="../assets/js/main.js"></script>
 </body>
 </html>
-
