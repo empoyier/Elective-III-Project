@@ -1,0 +1,28 @@
+# ==========================================
+# APEX Car Rental Management System
+# Git Ignore Configuration
+# ==========================================
+
+# Environment & Credentials
+.env
+.env.local
+
+# Logs and databases
+*.log
+*.sql.bak
+error_log
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE & Editor Configurations
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary & Cache Files
+/tmp/
+/scratch/

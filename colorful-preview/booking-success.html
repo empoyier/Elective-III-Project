@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <title>Reservation Confirmed | APEX Car Rental</title>
+    <link rel="stylesheet" href="assets/css/apex-theme.css">
+    <link rel="stylesheet" href="assets/css/customer.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+</head>
+<body>
+
+<header class="site-nav">
+    <div class="container-wide nav-inner">
+        <a href="index.html" class="brand-link">
+            <img class="apex-logo" src="assets/images/apex-new-logo.png" alt="APEX Car Rental Services">
+        </a>
+        <ul class="nav-links">
+            <li><a href="fleet.html">Select Vehicle</a></li>
+            <li><a href="my-bookings.html">My Reservations</a></li>
+        </ul>
+        <div class="nav-actions" id="nav-actions"></div>
+    </div>
+</header>
+<main>
+
+<div class="container" style="max-width:680px; padding:60px 20px 100px;">
+    <div class="card" style="border-top:4px solid var(--apex-success); text-align:center; padding:40px 32px;">
+        <div style="width:64px; height:64px; background:transparent; border:0; border-color:transparent; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+
+        <h1 style="font-size:26px; font-weight:800; color:var(--apex-text-main); margin-bottom:8px;">
+            Reservation Submitted Successfully!
+        </h1>
+        <p style="font-size:15px; color:var(--apex-text-muted); margin-bottom:28px;">
+            Your booking request has been received by our fleet dispatch center.
+        </p>
+
+        <div style="background:#F8FAFC; border:1px solid var(--apex-border-crisp); border-radius:4px; padding:20px; text-align:left; margin-bottom:28px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--apex-border-subtle); padding-bottom:12px; margin-bottom:12px;">
+                <span style="font-size:13px; color:var(--apex-text-muted);">Booking Reference</span>
+                <strong id="conf-ref" style="font-family:monospace; font-size:16px; color:var(--apex-primary);">—</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--apex-border-subtle); padding-bottom:12px; margin-bottom:12px;">
+                <span style="font-size:13px; color:var(--apex-text-muted);">Vehicle Model</span>
+                <strong id="conf-vehicle">—</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--apex-border-subtle); padding-bottom:12px; margin-bottom:12px;">
+                <span style="font-size:13px; color:var(--apex-text-muted);">Rental Schedule</span>
+                <span id="conf-schedule" style="font-size:13px; font-weight:600;">—</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--apex-border-subtle); padding-bottom:12px; margin-bottom:12px;">
+                <span style="font-size:13px; color:var(--apex-text-muted);">Estimated Total</span>
+                <strong id="conf-total" style="color:var(--apex-primary); font-size:16px;">—</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px; color:var(--apex-text-muted);">Current Status</span>
+                <span class="badge badge-pending">PENDING DISPATCH REVIEW</span>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:12px;">
+            <a href="my-bookings.html" class="btn btn-primary">
+                View My Reservations &rarr;
+            </a>
+            <a href="fleet.html" class="btn btn-secondary">
+                Back to Fleet Selection
+            </a>
+        </div>
+    </div>
+</div>
+
+</main>
+
+<footer class="site-footer">
+    <div class="container footer-bottom">
+        <div>&copy; 2026 APEX Car Rental Services. All rights reserved.</div>
+    </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    initPublicHeader('');
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref') || 'APX-CONFIRMED';
+    const id = params.get('id');
+
+    document.getElementById('conf-ref').textContent = ref;
+
+    if (id || ref) {
+        try {
+            let q = supabaseClient.from('bookings').select('*, vehicles(brand, model, license_plate)');
+            if (id) q = q.eq('id', id);
+            else q = q.eq('booking_ref', ref);
+            
+            const { data } = await q.single();
+            if (data) {
+                document.getElementById('conf-ref').textContent = data.booking_ref;
+                document.getElementById('conf-vehicle').textContent = `${data.vehicles?.brand || ''} ${data.vehicles?.model || 'Rental Vehicle'}`;
+                document.getElementById('conf-schedule').textContent = `${formatDateTime(data.pickup_datetime)} → ${formatDateTime(data.return_datetime)}`;
+                document.getElementById('conf-total').textContent = formatPesos(data.total_amount);
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+    }
+});
+</script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

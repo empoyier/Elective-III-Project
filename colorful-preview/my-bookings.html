@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <title>My Reservations & Active Rentals | APEX</title>
+    <link rel="stylesheet" href="assets/css/apex-theme.css">
+    <link rel="stylesheet" href="assets/css/customer.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+</head>
+<body>
+
+<header class="site-nav">
+    <div class="container-wide nav-inner">
+        <a href="index.html" class="brand-link">
+            <img class="apex-logo" src="assets/images/apex-new-logo.png" alt="APEX Car Rental Services">
+        </a>
+        <ul class="nav-links">
+            <li><a href="fleet.html">Select Vehicle</a></li>
+            <li><a href="my-bookings.html" class="active">My Reservations</a></li>
+            <li><a href="admin/index.html" id="nav-admin-link" style="display:none; color:#38BDF8; font-weight:700;">Admin Dashboard &rarr;</a></li>
+        </ul>
+        <div class="nav-actions" id="nav-actions">
+            <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+        </div>
+    </div>
+</header>
+<main>
+
+<div style="background:#FFFFFF; border-bottom:1px solid var(--apex-border-crisp); padding:24px 0;">
+    <div class="container">
+        <h1 style="font-size:26px; font-weight:800; color:var(--apex-text-main); margin-bottom:4px;">Customer Dashboard</h1>
+        <p style="font-size:14px; color:var(--apex-text-muted);">
+            Review your reservation status, rental schedule, and booking history.
+        </p>
+    </div>
+</div>
+
+<div class="container" style="padding:32px 0 80px;">
+    <div id="booking-msg" class="alert alert-success" style="display:none;"></div>
+
+    <!-- Active Rental Spotlight Banner -->
+    <div id="active-rental-banner" style="display:none; border:2px solid var(--apex-primary); margin-bottom:32px; background:#F8FAFC;" class="card">
+        <div class="card-body" style="padding:28px;">
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:20px;">
+                <div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                        <span class="badge badge-out_on_rental" style="font-size:12px; padding:4px 10px;">RENTAL IN PROGRESS</span>
+                    </div>
+                    <h2 style="font-size:22px; font-weight:800; color:var(--apex-text-main); margin-bottom:4px;" id="active-car-title">
+                        Vehicle Name
+                    </h2>
+                    <div style="font-size:13px; color:var(--apex-text-muted); font-family:monospace;" id="active-car-meta">
+                        Ref &bull; Plate &bull; Due date
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookings Table Card -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Your Reservations</span>
+            <a href="fleet.html" class="btn btn-primary btn-sm">+ Reserve Another Vehicle</a>
+        </div>
+        <div class="card-body" style="padding:0;">
+            <div id="table-loading" style="padding:40px; text-align:center; color:var(--apex-text-muted);">
+                Loading reservations from Supabase...
+            </div>
+
+            <div id="table-empty" style="display:none; padding:40px; text-align:center;">
+                <p style="color:var(--apex-text-muted); margin-bottom:16px;">You haven't made any reservations yet.</p>
+                <a href="fleet.html" class="btn btn-secondary">Browse Vehicle Fleet</a>
+            </div>
+
+            <div class="table-responsive" id="table-wrap" style="display:none;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Ref #</th>
+                            <th>Vehicle</th>
+                            <th>Pickup Date</th>
+                            <th>Return Date</th>
+                            <th>Total (PHP)</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookings-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</main>
+
+<footer class="site-footer">
+    <div class="container footer-bottom">
+        <div>&copy; 2026 APEX Car Rental Services. All rights reserved.</div>
+    </div>
+</footer>
+
+<script>
+let currentUser = null;
+
+async function loadBookings() {
+    initPublicHeader('bookings');
+    currentUser = await getCurrentUser();
+    if (!currentUser) {
+        window.location.href = 'login.html?redirect=my-bookings.html';
+        return;
+    }
+
+    try {
+        const { data: bookings, error } = await supabaseClient
+            .from('bookings')
+            .select('*, vehicles(brand, model, license_plate)')
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        document.getElementById('table-loading').style.display = 'none';
+
+        if (!bookings || bookings.length === 0) {
+            document.getElementById('table-empty').style.display = 'block';
+            return;
+        }
+
+        // Highlight any rental currently checked out to the customer.
+        const active = bookings.find(b => b.status === 'out_on_rental');
+        if (active) {
+            const banner = document.getElementById('active-rental-banner');
+            banner.style.display = 'block';
+            document.getElementById('active-car-title').textContent = `${active.vehicles?.brand || ''} ${active.vehicles?.model || 'Rental Vehicle'}`;
+            document.getElementById('active-car-meta').innerHTML = `Reference: <strong>${sanitize(active.booking_ref)}</strong> &bull; Plate: ${sanitize(active.vehicles?.license_plate || '')} &bull; Due: ${formatDateTime(active.return_datetime)}`;
+        }
+
+        document.getElementById('table-wrap').style.display = 'block';
+        const tbody = document.getElementById('bookings-tbody');
+
+        tbody.innerHTML = bookings.map(b => {
+            const vehName = b.vehicles ? `${b.vehicles.brand} ${b.vehicles.model}` : 'Vehicle #' + b.vehicle_id;
+            const vehPlate = b.vehicles?.license_plate || '—';
+            let actionHtml = '';
+            if (b.status === 'out_on_rental') {
+                actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Rental in progress</span>`;
+            } else if (b.status === 'pending' || b.status === 'approved') {
+                actionHtml = `<button onclick="cancelBooking(${b.id}, '${sanitize(b.booking_ref)}')" class="btn btn-danger btn-sm">Cancel</button>`;
+            } else if (b.status === 'returned') {
+                actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Completed</span>`;
+            } else {
+                actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Closed</span>`;
+            }
+
+            return `
+                <tr>
+                    <td><strong style="font-family:monospace; color:var(--apex-primary);">${sanitize(b.booking_ref)}</strong></td>
+                    <td>
+                        <strong>${sanitize(vehName)}</strong>
+                        <div style="font-size:11px; color:var(--apex-text-muted); font-family:monospace;">${sanitize(vehPlate)}</div>
+                    </td>
+                    <td style="font-size:13px;">${formatDateTime(b.pickup_datetime)}</td>
+                    <td style="font-size:13px;">${formatDateTime(b.return_datetime)}</td>
+                    <td><strong style="color:var(--apex-primary);">${formatPesos(b.total_amount)}</strong></td>
+                    <td>
+                        <span class="badge badge-${sanitize(b.status)}">${sanitize(getBookingStatusLabel(b.status))}</span>
+                        <div style="font-size:11px; color:var(--apex-text-muted); margin-top:4px;">${sanitize(getBookingStatusDescription(b.status))}</div>
+                    </td>
+                    <td>${actionHtml}</td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (err) {
+        document.getElementById('table-loading').innerHTML = `
+            <div class="alert alert-danger" style="margin:20px;">${sanitize(err.message)}</div>
+        `;
+    }
+}
+
+function getBookingStatusLabel(status) {
+    const labels = {
+        pending: 'PENDING REVIEW',
+        approved: 'APPROVED',
+        out_on_rental: 'PICKED UP',
+        returned: 'RETURNED',
+        cancelled: 'CANCELLED',
+        rejected: 'REJECTED'
+    };
+    return labels[status] || 'STATUS UNAVAILABLE';
+}
+
+function getBookingStatusDescription(status) {
+    const descriptions = {
+        pending: 'Awaiting review from our team.',
+        approved: 'Ready for pickup at your scheduled time.',
+        out_on_rental: 'Please return the vehicle by the due date.',
+        returned: 'Rental complete.',
+        cancelled: 'This reservation was cancelled.',
+        rejected: 'Contact our team if you need more information.'
+    };
+    return descriptions[status] || 'Contact our team for an update.';
+}
+
+async function cancelBooking(bookingId, ref) {
+    if (!confirm(`Are you sure you want to cancel booking ${ref}?`)) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from('bookings')
+            .update({ status: 'cancelled' })
+            .eq('id', bookingId);
+
+        if (error) throw error;
+
+        const msg = document.getElementById('booking-msg');
+        msg.textContent = `Booking ${ref} was cancelled successfully.`;
+        msg.style.display = 'block';
+
+        loadBookings();
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadBookings);
+</script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

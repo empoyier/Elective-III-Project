@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rental Workflow &amp; Bookings &mdash; APEX Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/apex-theme.css" />
+    <link rel="stylesheet" href="../assets/css/admin.css" />
+    <link rel="stylesheet" href="../assets/css/admin-dark.css" />
+    <style>
+        .table .booking-status {
+            background: none !important;
+            border: 0 !important;
+            border-radius: 0;
+            padding: 0;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="../assets/js/admin-notifications.js"></script>
+</head>
+<body>
+<div style="display:flex; min-height:100vh;">
+
+    <!-- Sidebar -->
+    <aside style="width:260px; background:#0B132B; border-right:1px solid #1E293B; color:#CBD5E1; display:flex; flex-direction:column; flex-shrink:0;">
+        <div style="padding:22px 20px; border-bottom:1px solid #1E293B; display:flex; flex-direction:column; align-items:flex-start; gap:12px;">
+            <img class="apex-logo apex-logo-on-dark" src="../assets/images/apex-new-logo.png" alt="APEX Car Rental Services" style="width:190px;">
+            <div>
+                <div style="font-weight:800; font-size:15px; color:#FFFFFF;">Fleet Operations</div>
+                <div style="font-size:11px; color:#94A3B8;">Admin Control Center</div>
+            </div>
+        </div>
+        <nav style="padding:20px 0; flex:1;">
+            <div style="font-size:11px; font-weight:700; color:#64748B; padding:0 20px 8px; text-transform:uppercase;">Operations</div>
+            <a href="index.html" id="nav-dashboard" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Dashboard Overview</a>
+            <a href="bookings.html" id="nav-bookings" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Rental Workflow Queue<span id="pending-bookings-count" class="admin-notification-count" aria-label="0 pending reservations" aria-live="polite" hidden></span></a>
+            <div style="font-size:11px; font-weight:700; color:#64748B; padding:20px 20px 8px; text-transform:uppercase;">Fleet &amp; Inventory</div>
+            <a href="vehicles.html" id="nav-vehicles" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Vehicle Fleet</a>
+            <a href="maintenance.html" id="nav-maintenance" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Maintenance Log</a>
+            <a href="customers.html" id="nav-customers" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Customer Accounts</a>
+        </nav>
+        <div style="padding:16px 20px; border-top:1px solid #1E293B; font-size:13px;">
+            <a href="../index.html" style="color:var(--apex-primary); font-weight:600; display:block; margin-bottom:8px;">&larr; Return to Public Website</a>
+            <div style="color:#64748B; font-size:11px;">Logged in as <strong id="user-name"></strong> (<span id="user-role"></span>)</div>
+        </div>
+    </aside>
+
+    <div style="flex:1;display:flex;flex-direction:column;overflow-x:hidden;">
+        <!-- Header -->
+        <header style="background:#FFFFFF;border-bottom:1px solid var(--apex-border-crisp);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;">
+            <div><h1 style="font-size:20px;font-weight:800;color:var(--apex-text-main);margin:0;">Rental Workflow &amp; Bookings</h1></div>
+            <div style="display:flex;align-items:center;gap:14px;">
+                <span class="badge badge-sim">ADMIN MODE</span>
+                <button onclick="signOut()" class="btn btn-secondary btn-sm">Sign Out</button>
+            </div>
+        </header>
+
+        <main style="padding:32px;flex:1;">
+            <!-- Alert message area -->
+            <div id="alert-area" style="display:none;" class="alert"></div>
+
+            <!-- Status Filter Tabs -->
+            <div class="category-pills" style="margin-bottom:20px;">
+                <a href="bookings.html" class="category-pill" id="tab-all">All Bookings</a>
+                <a href="bookings.html?status=pending" class="category-pill" id="tab-pending">Pending Requests</a>
+                <a href="bookings.html?status=approved" class="category-pill" id="tab-approved">Approved (Ready for Pickup)</a>
+                <a href="bookings.html?status=out_on_rental" class="category-pill" id="tab-out_on_rental">Out on Rental (Active)</a>
+                <a href="bookings.html?status=returned" class="category-pill" id="tab-returned">Returned (Completed)</a>
+                <a href="bookings.html?status=cancelled" class="category-pill" id="tab-cancelled">Cancelled / Rejected</a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title" id="table-title">Manage Reservations &amp; Dispatch Workflow</span>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="search-input" class="form-control" style="padding:4px 10px; width:220px;" placeholder="Search ref, customer...">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="applySearch()">Search</button>
+                    </div>
+                </div>
+
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Ref #</th>
+                                    <th>Customer</th>
+                                    <th>Vehicle &amp; Plate</th>
+                                    <th>Pickup &amp; Return Schedule</th>
+                                    <th>Total Amount</th>
+                                    <th>Current Status</th>
+                                    <th style="text-align:right;">Workflow Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookings-tbody">
+                                <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--apex-text-muted);">Loading bookings...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal 1: Reject Booking -->
+<div id="rejectModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+    <div class="card" style="width:460px; max-width:90%; margin:auto;">
+        <div class="card-header">
+            <span class="card-title">Reject Booking &mdash; <span id="rejectRef"></span></span>
+            <button type="button" onclick="closeRejectModal()" style="background:none; border:none; font-size:18px; cursor:pointer;">&times;</button>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label" for="reject_reason">Reason for Rejection *</label>
+                <textarea id="reject_reason" class="form-control" rows="3" required placeholder="e.g. Incomplete driver license documents, scheduling conflict..."></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeRejectModal()">Cancel</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="submitReject()">Confirm Rejection</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Return & Vehicle Inspection Modal -->
+<div id="returnModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+    <div class="card" style="width:520px; max-width:90%; margin:auto;">
+        <div class="card-header">
+            <span class="card-title">Record Return &amp; Inspection (<span id="returnRef"></span>)</span>
+            <button type="button" onclick="closeReturnModal()" style="background:none; border:none; font-size:18px; cursor:pointer;">&times;</button>
+        </div>
+        <div class="card-body">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:14px;">
+                <div class="form-group">
+                    <label class="form-label" for="odometer_reading">Return Odometer (km)</label>
+                    <input type="number" id="odometer_reading" class="form-control" required placeholder="e.g. 14200">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="fuel_level_returned">Fuel Level Returned (%)</label>
+                    <input type="number" id="fuel_level_returned" class="form-control" min="0" max="100" value="100" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label style="display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; cursor:pointer;">
+                    <input type="checkbox" id="has_damage_cb" style="accent-color:var(--apex-danger);">
+                    <span>Check if damage / issues detected during inspection</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="damage_notes">Damage / Condition Inspection Notes</label>
+                <textarea id="damage_notes" class="form-control" rows="2" placeholder="Vehicle condition, scratches, cleanliness..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="additional_charges">Additional Charges (PHP, if applicable)</label>
+                <input type="number" step="0.01" id="additional_charges" class="form-control" value="0.00">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeReturnModal()">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="submitReturn()">Complete Return &amp; Finalize</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ybwsiaieehefoceueqdl.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlid3NpYWllZWhlZm9jZXVlcWRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzOTg3MTAsImV4cCI6MjEwODk3NDcxMH0.7H-n6KTqwBEO7LvAYiPFVacTico3qRT-wEjn4cW7VKk";
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function guardAdmin() {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (!session) { window.location.href = '../login.html'; return; }
+    const role = session.user.app_metadata?.role ?? 'admin';
+    document.getElementById('user-name').textContent = session.user.email;
+    document.getElementById('user-role').textContent = role.toUpperCase();
+}
+function highlightNav() {
+    const page = window.location.pathname.split('/').pop();
+    const map = { 'index.html':'nav-dashboard','bookings.html':'nav-bookings','vehicles.html':'nav-vehicles','maintenance.html':'nav-maintenance','customers.html':'nav-customers' };
+    document.querySelectorAll('.nav-link').forEach(el => el.style.cssText += 'color:#94A3B8;background:transparent;border-left:4px solid transparent;');
+    const el = document.getElementById(map[page] || 'nav-dashboard');
+    if (el) el.style.cssText += 'color:#FFFFFF;background:#1E293B;border-left:4px solid var(--apex-primary);';
+}
+async function signOut() { await _supabase.auth.signOut(); window.location.href = '../login.html'; }
+guardAdmin(); highlightNav();
+
+function formatPesos(n){ return '\u20B1 ' + Number(n).toLocaleString('en-PH',{minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtDate(d){ return new Date(d).toLocaleDateString('en-PH',{month:'short',day:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+
+function statusBadge(status) {
+    const labels = {
+        pending: 'PENDING', approved: 'APPROVED', out_on_rental: 'OUT ON RENTAL',
+        returned: 'RETURNED', cancelled: 'CANCELLED', rejected: 'REJECTED'
+    };
+    return `<span class="badge badge-${status} booking-status">${labels[status] || status.toUpperCase()}</span>`;
+}
+
+function actionButtons(b) {
+    if (b.status === 'pending') {
+        return `
+            <button class="btn btn-primary btn-sm" onclick="approveBooking(${b.id})">Approve</button>
+            <button class="btn btn-danger btn-sm" style="margin-left:4px;" onclick="openRejectModal(${b.id}, '${b.booking_ref}')">Reject</button>
+        `;
+    } else if (b.status === 'approved') {
+        return `<button class="btn btn-primary btn-sm" onclick="confirmPickup(${b.id})">Confirm Pickup &rarr;</button>`;
+    } else if (b.status === 'out_on_rental') {
+        return `
+            <button class="btn btn-primary btn-sm" style="margin-left:4px;" onclick="openReturnModal(${b.id}, '${b.booking_ref}')">Record Return &amp; Inspection</button>
+        `;
+    } else {
+        return `<span style="font-size:12px;color:var(--apex-text-muted);">Completed</span>`;
+    }
+}
+
+let allBookings = [];
+
+async function loadBookings() {
+    const { data, error } = await _supabase
+        .from('bookings')
+        .select('*, users(name,email,phone), vehicles(brand,model,license_plate,vehicle_categories(name))')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        document.getElementById('bookings-tbody').innerHTML =
+            `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--apex-danger);">Error loading bookings: ${error.message}</td></tr>`;
+        return;
+    }
+
+    allBookings = data || [];
+    renderTable();
+}
+
+function renderTable() {
+    const params = new URLSearchParams(location.search);
+    const statusFilter = params.get('status') || '';
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+    // Highlight active tab
+    document.querySelectorAll('.category-pill').forEach(el => el.classList.remove('active'));
+    const tabId = statusFilter ? `tab-${statusFilter}` : 'tab-all';
+    const tabEl = document.getElementById(tabId);
+    if (tabEl) tabEl.classList.add('active');
+
+    let filtered = allBookings;
+    if (statusFilter) {
+        filtered = filtered.filter(b => b.status === statusFilter ||
+            (statusFilter === 'cancelled' && (b.status === 'cancelled' || b.status === 'rejected')));
+    }
+    if (searchTerm) {
+        filtered = filtered.filter(b => {
+            const ref = (b.booking_ref || '').toLowerCase();
+            const name = (b.users?.name || '').toLowerCase();
+            return ref.includes(searchTerm) || name.includes(searchTerm);
+        });
+    }
+
+    document.getElementById('table-title').textContent =
+        `Manage Reservations & Dispatch Workflow (${filtered.length} Records)`;
+
+    if (filtered.length === 0) {
+        document.getElementById('bookings-tbody').innerHTML =
+            `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--apex-text-muted);">No bookings found.</td></tr>`;
+        return;
+    }
+
+    const rows = filtered.map(b => {
+        const vehicle = b.vehicles;
+        const user = b.users;
+        const vehicleLabel = vehicle ? `<strong>${vehicle.brand} ${vehicle.model}</strong><div style="font-size:11px;color:var(--apex-text-muted);font-family:monospace;">${vehicle.license_plate}</div>` : '—';
+        const categoryLabel = vehicle?.vehicle_categories?.name || '—';
+        return `<tr>
+            <td><strong style="font-family:monospace;">${b.booking_ref || '—'}</strong></td>
+            <td>
+                <strong>${user?.name || '—'}</strong>
+                <div style="font-size:11px;color:var(--apex-text-muted);">${user?.email || ''}</div>
+            </td>
+            <td>${vehicleLabel}<div style="font-size:11px;color:var(--apex-text-muted);">${categoryLabel}</div></td>
+            <td style="font-size:12px;">
+                <div>Pickup: ${b.pickup_datetime ? fmtDate(b.pickup_datetime) : '—'}</div>
+                <div>Return: ${b.return_datetime ? fmtDate(b.return_datetime) : '—'}</div>
+            </td>
+            <td><strong style="color:var(--apex-primary);">${formatPesos(b.total_amount || 0)}</strong></td>
+            <td>${statusBadge(b.status)}</td>
+            <td style="text-align:right;">${actionButtons(b)}</td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('bookings-tbody').innerHTML = rows;
+}
+
+function applySearch() {
+    renderTable();
+}
+
+document.addEventListener('DOMContentLoaded', loadBookings);
+
+// ---- Actions ----
+async function approveBooking(id) {
+    if (!confirm('Approve this booking?')) return;
+    const { error } = await _supabase.from('bookings').update({ status: 'approved' }).eq('id', id);
+    if (error) { showAlert('Error: ' + error.message, 'danger'); return; }
+    showAlert('Booking approved successfully.', 'success');
+    await loadBookings();
+}
+
+async function confirmPickup(id) {
+    if (!confirm('Confirm vehicle pickup and dispatch?')) return;
+    const { error } = await _supabase.from('bookings').update({ status: 'out_on_rental' }).eq('id', id);
+    if (error) { showAlert('Error: ' + error.message, 'danger'); return; }
+    showAlert('Booking updated to Out on Rental.', 'success');
+    await loadBookings();
+}
+
+let _rejectId = null;
+function openRejectModal(id, ref) {
+    _rejectId = id;
+    document.getElementById('rejectRef').textContent = ref;
+    document.getElementById('reject_reason').value = '';
+    document.getElementById('rejectModal').style.display = 'flex';
+}
+function closeRejectModal() {
+    document.getElementById('rejectModal').style.display = 'none';
+    _rejectId = null;
+}
+async function submitReject() {
+    const reason = document.getElementById('reject_reason').value.trim();
+    if (!reason) { alert('Please provide a rejection reason.'); return; }
+    const { error } = await _supabase.from('bookings').update({ status: 'rejected', customer_notes: reason }).eq('id', _rejectId);
+    if (error) { showAlert('Error: ' + error.message, 'danger'); return; }
+    closeRejectModal();
+    showAlert('Booking rejected.', 'success');
+    await loadBookings();
+}
+
+let _returnId = null;
+function openReturnModal(id, ref) {
+    _returnId = id;
+    document.getElementById('returnRef').textContent = ref;
+    document.getElementById('odometer_reading').value = '';
+    document.getElementById('fuel_level_returned').value = '100';
+    document.getElementById('has_damage_cb').checked = false;
+    document.getElementById('damage_notes').value = '';
+    document.getElementById('additional_charges').value = '0.00';
+    document.getElementById('returnModal').style.display = 'flex';
+}
+function closeReturnModal() {
+    document.getElementById('returnModal').style.display = 'none';
+    _returnId = null;
+}
+async function submitReturn() {
+    const odometer = parseInt(document.getElementById('odometer_reading').value) || 0;
+    const fuel = parseInt(document.getElementById('fuel_level_returned').value) || 100;
+    const hasDamage = document.getElementById('has_damage_cb').checked;
+    const damageNotes = document.getElementById('damage_notes').value.trim();
+    const additionalCharges = parseFloat(document.getElementById('additional_charges').value) || 0;
+
+    const { error } = await _supabase.from('bookings').update({
+        status: 'returned',
+        odometer_reading: odometer,
+        fuel_level_returned: fuel,
+        has_damage: hasDamage,
+        damage_notes: damageNotes,
+        additional_charges: additionalCharges
+    }).eq('id', _returnId);
+
+    if (error) { showAlert('Error: ' + error.message, 'danger'); return; }
+    closeReturnModal();
+    showAlert('Vehicle return and inspection recorded successfully.', 'success');
+    await loadBookings();
+}
+
+function showAlert(msg, type) {
+    const el = document.getElementById('alert-area');
+    el.textContent = msg;
+    el.className = `alert alert-${type}`;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+</script>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
