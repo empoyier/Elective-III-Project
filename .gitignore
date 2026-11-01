@@ -26,3 +26,7 @@ Desktop.ini
 # Temporary & Cache Files
 /tmp/
 /scratch/
+
+# Netlify build output and local Netlify state
+/dist/
+/.netlify/
