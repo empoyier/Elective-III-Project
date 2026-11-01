@@ -23,7 +23,6 @@
             <ul class="nav-links">
                 <li><a href="fleet.html">Select Vehicle</a></li>
                 <li><a href="my-bookings.html">My Reservations</a></li>
-                <li><a href="my-bookings.html">My Reservations</a></li>
                 <li><a href="admin/index.html" id="nav-admin-link"
                         style="display:none; color:#38BDF8; font-weight:700;">Admin Dashboard &rarr;</a></li>
             </ul>
@@ -205,7 +204,8 @@
                     <aside>
                         <div class="card" style="position:sticky; top:90px;">
                             <div class="vehicle-thumb-wrap" style="height:190px;">
-                                <img id="veh-img" src="assets/images/cars/placeholder.jpg" alt="Vehicle"
+                                <img id="veh-img" src="assets/images/cartoon-cars.svg" alt="Vehicle"
+                                    onerror="this.onerror=null; this.src='assets/images/cartoon-cars.svg';"
                                     class="vehicle-thumb">
                                 <span class="vehicle-category-badge" id="veh-cat">Vehicle</span>
                             </div>
@@ -515,6 +515,7 @@
 
         document.addEventListener('DOMContentLoaded', initWizard);
     </script>
+    <script src="assets/js/main.js"></script>
 </body>
 
 </html>

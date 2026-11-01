@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/vehicle-images.js"></script>
     <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/admin-notifications.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background: var(--dm-bg); color: var(--apex-text-main); }
         a { text-decoration: none; }
@@ -31,7 +32,7 @@
         <nav style="padding:20px 0; flex:1;">
             <div style="font-size:11px; font-weight:700; color:#64748B; padding:0 20px 8px; text-transform:uppercase;">Operations</div>
             <a href="index.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">Dashboard Overview</a>
-            <a href="bookings.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">Rental Workflow Queue</a>
+            <a href="bookings.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">Rental Workflow Queue<span id="pending-bookings-count" class="admin-notification-count" aria-label="0 pending reservations" aria-live="polite" hidden></span></a>
             <div style="font-size:11px; font-weight:700; color:#64748B; padding:20px 20px 8px; text-transform:uppercase;">Fleet & Inventory</div>
             <a href="vehicles.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#FFFFFF; background:#1E293B; border-left:4px solid var(--apex-primary);">Vehicle Fleet</a>
             <a href="maintenance.html" class="nav-link" style="display:flex; align-items:center; gap:12px; padding:10px 20px; font-size:14px; font-weight:600; color:#94A3B8;">Maintenance Log</a>

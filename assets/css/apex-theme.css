@@ -166,7 +166,8 @@ img {
     transition: transform 0.3s ease;
 }
 
-.site-nav.nav-hidden {
+.site-nav.nav-hidden,
+.landing-nav.nav-hidden {
     transform: translateY(-100%);
 }
 
@@ -262,30 +263,24 @@ img {
     border-radius: 2px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    background: transparent;
+    border: 0;
 }
 
 .badge-available, .badge-approved, .badge-returned, .badge-active {
-    background-color: var(--apex-success-bg);
     color: var(--apex-success);
-    border: 1px solid #A7F3D0;
 }
 
 .badge-pending, .badge-scheduled, .badge-maintenance {
-    background-color: var(--apex-warning-bg);
     color: var(--apex-warning);
-    border: 1px solid #FDE68A;
 }
 
 .badge-rejected, .badge-cancelled, .badge-blocked, .badge-deactivated {
-    background-color: var(--apex-danger-bg);
     color: var(--apex-danger);
-    border: 1px solid #FECACA;
 }
 
 .badge-out_on_rental {
-    background-color: var(--apex-primary-light);
     color: var(--apex-primary);
-    border: 1px solid #BFDBFE;
 }
 
 .badge-sim {

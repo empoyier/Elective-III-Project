@@ -76,7 +76,7 @@ async function initPublicHeader(activeNav) {
         if (navActions) {
             navActions.innerHTML = `
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="color:#CBD5E1; font-size:13px;">Hello, <strong>${sanitize(displayName)}</strong></span>
+                    <span style="color:var(--apex-primary); font-size:13px;">Hello, <strong>${sanitize(displayName)}</strong></span>
                     <a href="logout.html" class="btn btn-secondary btn-sm">Sign Out</a>
                 </div>
             `;

@@ -184,7 +184,7 @@ body > div:first-of-type .form-control:focus {
 
 body > div:first-of-type .badge:not(.badge-sim) {
     background: transparent;
-    border-color: transparent;
+    border: 0;
     padding-left: 0;
     padding-right: 0;
 }

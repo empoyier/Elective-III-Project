@@ -80,6 +80,11 @@
             align-items: center;
             justify-content: space-between;
             gap: 24px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #FFFFFF;
+            transition: transform 0.3s ease;
         }
 
         .landing-brand {
@@ -359,5 +364,6 @@
     });
     featuredImage.addEventListener('blur', hideImageCredit);
 </script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>

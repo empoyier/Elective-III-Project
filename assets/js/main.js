@@ -33,20 +33,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     });
     // 3. Hide navbar on scroll down, show on scroll up
-    const nav = document.querySelector('.site-nav');
-    if (nav) {
+    const navs = document.querySelectorAll('.site-nav, .landing-nav');
+    if (navs.length) {
         let lastScrollY = window.scrollY;
-        window.addEventListener('scroll', () => {
+        let ticking = false;
+
+        const updateNavVisibility = () => {
             const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY && currentScrollY > 80) {
-                // Scrolling down — hide navbar
-                nav.classList.add('nav-hidden');
-            } else {
-                // Scrolling up — show navbar
-                nav.classList.remove('nav-hidden');
+            const scrollDelta = currentScrollY - lastScrollY;
+
+            if (currentScrollY <= 80) {
+                navs.forEach(nav => nav.classList.remove('nav-hidden'));
+            } else if (scrollDelta > 5) {
+                navs.forEach(nav => nav.classList.add('nav-hidden'));
+            } else if (scrollDelta < -5) {
+                navs.forEach(nav => nav.classList.remove('nav-hidden'));
             }
+
             lastScrollY = currentScrollY;
+            ticking = false;
+        };
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateNavVisibility);
+                ticking = true;
+            }
         }, { passive: true });
+
+        navs.forEach(nav => nav.addEventListener('focusin', () => {
+            nav.classList.remove('nav-hidden');
+        }));
     }
 });
 

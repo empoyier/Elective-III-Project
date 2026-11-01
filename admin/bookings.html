@@ -18,6 +18,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="../assets/js/admin-notifications.js"></script>
 </head>
 <body>
 <div style="display:flex; min-height:100vh;">
@@ -34,7 +35,7 @@
         <nav style="padding:20px 0; flex:1;">
             <div style="font-size:11px; font-weight:700; color:#64748B; padding:0 20px 8px; text-transform:uppercase;">Operations</div>
             <a href="index.html" id="nav-dashboard" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Dashboard Overview</a>
-            <a href="bookings.html" id="nav-bookings" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Rental Workflow Queue</a>
+            <a href="bookings.html" id="nav-bookings" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Rental Workflow Queue<span id="pending-bookings-count" class="admin-notification-count" aria-label="0 pending reservations" aria-live="polite" hidden></span></a>
             <div style="font-size:11px; font-weight:700; color:#64748B; padding:20px 20px 8px; text-transform:uppercase;">Fleet &amp; Inventory</div>
             <a href="vehicles.html" id="nav-vehicles" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Vehicle Fleet</a>
             <a href="maintenance.html" id="nav-maintenance" class="nav-link" style="display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:600;color:#94A3B8;">Maintenance Log</a>
@@ -171,7 +172,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function guardAdmin() {
     const { data: { session } } = await _supabase.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+    if (!session) { window.location.href = '../login.html'; return; }
     const role = session.user.app_metadata?.role ?? 'admin';
     document.getElementById('user-name').textContent = session.user.email;
     document.getElementById('user-role').textContent = role.toUpperCase();
@@ -183,7 +184,7 @@ function highlightNav() {
     const el = document.getElementById(map[page] || 'nav-dashboard');
     if (el) el.style.cssText += 'color:#FFFFFF;background:#1E293B;border-left:4px solid var(--apex-primary);';
 }
-async function signOut() { await _supabase.auth.signOut(); window.location.href = 'login.html'; }
+async function signOut() { await _supabase.auth.signOut(); window.location.href = '../login.html'; }
 guardAdmin(); highlightNav();
 
 function formatPesos(n){ return '\u20B1 ' + Number(n).toLocaleString('en-PH',{minimumFractionDigits:2, maximumFractionDigits:2}); }
