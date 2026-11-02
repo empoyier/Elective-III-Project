@@ -243,16 +243,32 @@
             }
         }
 
-        @media (max-width: 520px) {
+        @media (max-width: 700px) {
             .splash-media-half {
-                height: 280px;
+                display: none;
             }
             .splash-content-half {
-                gap: 42px;
-                padding: 22px 22px 26px;
+                min-height: 100vh;
+                min-height: 100svh;
+                justify-content: space-between;
+                gap: 0;
+                padding: 22px clamp(22px, 6vw, 40px) 14px;
             }
             .landing-nav {
-                align-items: flex-start;
+                align-items: center;
+                margin-bottom: 0;
+            }
+            .landing-copy {
+                margin: auto 0;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .splash-content-half {
+                gap: 0;
+                padding: 22px 22px 14px;
+            }
+            .landing-nav {
                 gap: 16px;
             }
             .landing-brand {
@@ -316,11 +332,16 @@
         <main class="landing-copy">
             <h1 class="splash-title">Find your ride<br>in Zambales.</h1>
             <p class="splash-subtitle">
-                Make your next trip easier with a vehicle that fits your plans. Browse our fleet*- , compare clear daily rates, and choose a convenient pickup hub.
+                Make your next trip easier with a vehicle that fits your plans. Browse our fleet, compare clear daily rates, and choose a convenient pickup hub.
             </p>
 
             <a href="fleet.html" class="splash-btn-get-started">
                 Browse available cars <span aria-hidden="true">&rarr;</span>
+            </a>
+        </main>
+    </div>
+</div>
+
 <script>
     const featuredImage = document.querySelector('.splash-media-half img');
     const imageOwnerTooltip = document.querySelector('.image-owner-tooltip');

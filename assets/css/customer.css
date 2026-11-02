@@ -332,6 +332,37 @@
 }
 
 /* Multi-Step Booking Wizard */
+.booking-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 32px;
+    align-items: start;
+}
+
+.booking-form-fields,
+.booking-layout > aside {
+    min-width: 0;
+}
+
+.booking-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.booking-fields-grid--spaced {
+    margin-bottom: 16px;
+}
+
+.booking-summary-card {
+    position: sticky;
+    top: 90px;
+}
+
+.booking-vehicle-image {
+    height: 190px;
+}
+
 .wizard-steps {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -503,7 +534,55 @@
         grid-column: span 1;
     }
     .wizard-steps {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin-bottom: 20px;
+    }
+    .wizard-step {
+        min-width: 0;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        padding: 8px 3px;
+        text-align: center;
+        font-size: 10px;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+    .wizard-step-num {
+        flex-shrink: 0;
+    }
+    .wizard-step.active .wizard-step-num {
+        background: #FFFFFF;
+        color: var(--apex-primary);
+    }
+    .booking-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+    .booking-layout > aside {
+        order: -1;
+    }
+    .booking-summary-card {
+        position: static;
+    }
+    .booking-vehicle-image {
+        height: clamp(140px, 38vw, 180px);
+    }
+    .booking-fields-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
+    .booking-layout .card-header {
+        padding: 14px 16px;
+    }
+    .booking-layout .card-body {
+        padding: 16px;
+    }
+    .booking-layout .price-summary-box {
+        padding: 16px;
+    }
+    .booking-layout .summary-row {
+        gap: 12px;
     }
     .section-header {
         align-items: flex-start;
