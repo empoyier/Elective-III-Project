@@ -67,16 +67,15 @@
             </div>
 
             <form id="booking-wizard-form">
-                <div style="display:grid; grid-template-columns: 1fr 380px; gap:32px; align-items:start;">
-                    <div>
+                <div class="booking-layout">
+                    <div class="booking-form-fields">
                         <!-- STEP 1: Dates & Locations -->
                         <div class="card" style="margin-bottom:24px;">
                             <div class="card-header">
                                 <span class="card-title">Step 1: Rental Schedule & Locations</span>
                             </div>
                             <div class="card-body">
-                                <div
-                                    style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                                <div class="booking-fields-grid booking-fields-grid--spaced">
                                     <div class="form-group">
                                         <label class="form-label" for="pickup_datetime">Pickup Date & Time *</label>
                                         <input type="datetime-local" id="pickup_datetime" class="form-control" required
@@ -89,7 +88,7 @@
                                     </div>
                                 </div>
 
-                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                                <div class="booking-fields-grid">
                                     <div class="form-group">
                                         <label class="form-label" for="pickup_location">Pickup Location Hub</label>
                                         <select id="pickup_location" class="form-control">
@@ -147,8 +146,7 @@
                                 <span class="card-title">Step 3 & 4: Driver Information & Confirmation</span>
                             </div>
                             <div class="card-body">
-                                <div
-                                    style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                                <div class="booking-fields-grid booking-fields-grid--spaced">
                                     <div class="form-group">
                                         <label class="form-label">Full Name</label>
                                         <input type="text" id="cust_name" class="form-control" disabled>
@@ -159,8 +157,7 @@
                                     </div>
                                 </div>
 
-                                <div
-                                    style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                                <div class="booking-fields-grid booking-fields-grid--spaced">
                                     <div class="form-group">
                                         <label class="form-label" for="license_number">LTO Driver's License Number
                                             *</label>
@@ -202,8 +199,8 @@
 
                     <!-- Right Sidebar: Vehicle & Live Breakdown -->
                     <aside>
-                        <div class="card" style="position:sticky; top:90px;">
-                            <div class="vehicle-thumb-wrap" style="height:190px;">
+                        <div class="card booking-summary-card">
+                            <div class="vehicle-thumb-wrap booking-vehicle-image">
                                 <img id="veh-img" src="assets/images/cartoon-cars.svg" alt="Vehicle"
                                     onerror="this.onerror=null; this.src='assets/images/cartoon-cars.svg';"
                                     class="vehicle-thumb">

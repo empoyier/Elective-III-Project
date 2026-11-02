@@ -40,6 +40,10 @@
     padding: 0;
 }
 
+*::-webkit-scrollbar:vertical {
+    width: 0;
+}
+
 body {
     font-family: var(--apex-font-sans);
     background-color: var(--apex-bg-canvas);
@@ -488,10 +492,6 @@ img {
         gap: 20px;
         overflow-x: auto;
         padding: 4px 0 2px;
-        scrollbar-width: none;
-    }
-    .nav-links::-webkit-scrollbar {
-        display: none;
     }
     .nav-links a {
         white-space: nowrap;

@@ -27,6 +27,6 @@ Desktop.ini
 /tmp/
 /scratch/
 
-# Netlify build output and local Netlify state
+# Vercel build output and local Vercel state
 /dist/
-/.netlify/
+/.vercel/
