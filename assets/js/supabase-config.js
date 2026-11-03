@@ -46,6 +46,62 @@ function setStoredUser(userObj) {
     }
 }
 
+function getSafeAuthRedirect(redirect) {
+    if (!redirect) return null;
+
+    try {
+        const url = new URL(redirect, window.location.origin);
+        if (url.origin !== window.location.origin || url.pathname.endsWith('/login.html')) {
+            return null;
+        }
+        return `${url.pathname}${url.search}${url.hash}`;
+    } catch (error) {
+        console.warn('Ignoring invalid post-authentication redirect:', error);
+        return null;
+    }
+}
+
+async function signInWithGoogle() {
+    if (!supabaseClient) {
+        throw new Error('Supabase authentication is unavailable. Please try again later.');
+    }
+
+    const callbackUrl = new URL('login.html', window.location.href);
+    const redirect = getSafeAuthRedirect(new URLSearchParams(window.location.search).get('redirect'));
+    if (redirect) {
+        callbackUrl.searchParams.set('redirect', redirect);
+    }
+
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: callbackUrl.href }
+    });
+
+    if (error) throw error;
+}
+
+async function ensureCustomerProfile(user) {
+    if (!user?.id || !user.email) {
+        throw new Error('Your Google account did not provide an email address. Please use email and password sign-in.');
+    }
+
+    const name = user.user_metadata?.full_name
+        || user.user_metadata?.name
+        || user.email.split('@')[0];
+    const { error } = await supabaseClient.from('users').upsert({
+        id: user.id,
+        email: user.email,
+        name
+    }, {
+        onConflict: 'id',
+        ignoreDuplicates: true
+    });
+
+    if (error) {
+        throw new Error(`Signed in, but your customer profile could not be created: ${error.message}`);
+    }
+}
+
 async function getCurrentUser() {
     const local = getStoredUser();
     if (local) return local;
