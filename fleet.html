@@ -94,6 +94,7 @@
             </div>
         </form>
         <div id="availability-message" role="status" aria-live="polite" style="margin-top:12px;"></div>
+        <div id="reviews-setup-message" role="status" aria-live="polite" style="margin-top:12px;"></div>
     </div>
 </div>
 
@@ -173,24 +174,36 @@ async function loadFleet() {
     try {
         if (!supabaseClient) throw new Error('Supabase client failed to initialize. Check the Supabase script and configuration.');
 
-        const [catRes, vehRes, reviewsRes] = await Promise.all([
+        const [catRes, vehRes] = await Promise.all([
             supabaseClient.from('vehicle_categories').select('*').order('name'),
-            supabaseClient.from('vehicles').select('*, vehicle_categories(name, slug)').order('daily_rate', { ascending: true }),
-            supabaseClient.from('vehicle_reviews').select('vehicle_id,rating,review_text,created_at').order('created_at', { ascending: false })
+            supabaseClient.from('vehicles').select('*, vehicle_categories(name, slug)').order('daily_rate', { ascending: true })
         ]);
 
         if (catRes.error) throw catRes.error;
         if (vehRes.error) throw vehRes.error;
-        if (reviewsRes.error) throw reviewsRes.error;
 
         categories = catRes.data || [];
         allVehicles = vehRes.data || [];
         reviewsByVehicle = new Map();
-        (reviewsRes.data || []).forEach(review => {
-            const vehicleId = Number(review.vehicle_id);
-            if (!reviewsByVehicle.has(vehicleId)) reviewsByVehicle.set(vehicleId, []);
-            reviewsByVehicle.get(vehicleId).push(review);
-        });
+
+        const reviewsMessage = document.getElementById('reviews-setup-message');
+        const reviewsRes = await supabaseClient
+            .from('vehicle_reviews')
+            .select('vehicle_id,rating,review_text,created_at')
+            .order('created_at', { ascending: false });
+
+        if (reviewsRes.error) {
+            reviewsMessage.className = 'alert alert-danger';
+            reviewsMessage.textContent = `Vehicle reviews could not be loaded; the fleet is still available. Run database/supabase_schema.sql in the Supabase SQL Editor to enable reviews. Details: ${reviewsRes.error.message}`;
+        } else {
+            reviewsMessage.textContent = '';
+            reviewsMessage.className = '';
+            (reviewsRes.data || []).forEach(review => {
+                const vehicleId = Number(review.vehicle_id);
+                if (!reviewsByVehicle.has(vehicleId)) reviewsByVehicle.set(vehicleId, []);
+                reviewsByVehicle.get(vehicleId).push(review);
+            });
+        }
 
         renderCategories();
         await applyFilters();
