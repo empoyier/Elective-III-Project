@@ -4,6 +4,8 @@
 -- Run this in your Supabase Project -> SQL Editor
 -- ===================================================================
 
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
 -- 1. Users table (synced with profiles)
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -81,6 +83,23 @@ CREATE TABLE IF NOT EXISTS public.bookings (
     customer_notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'bookings_no_overlapping_reservations'
+          AND conrelid = 'public.bookings'::regclass
+    ) THEN
+        ALTER TABLE public.bookings
+            ADD CONSTRAINT bookings_no_overlapping_reservations
+            EXCLUDE USING gist (
+                vehicle_id WITH =,
+                tstzrange(pickup_datetime, return_datetime, '[)') WITH &&
+            )
+            WHERE (status IN ('pending', 'approved', 'out_on_rental'));
+    END IF;
+END $$;
 
 -- Return inspection fields used by the admin booking workflow. The IF NOT EXISTS
 -- clauses also upgrade projects where the bookings table was created previously.
@@ -161,6 +180,34 @@ CREATE TABLE IF NOT EXISTS public.maintenance (
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE OR REPLACE FUNCTION public.prevent_booking_during_maintenance()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW.status IN ('pending', 'approved', 'out_on_rental') AND EXISTS (
+        SELECT 1
+        FROM public.maintenance m
+        WHERE m.vehicle_id = NEW.vehicle_id
+          AND m.status IN ('scheduled', 'in_progress')
+          AND NEW.pickup_datetime < ((m.end_date + 1)::timestamp AT TIME ZONE 'Asia/Manila')
+          AND NEW.return_datetime > (m.start_date::timestamp AT TIME ZONE 'Asia/Manila')
+    ) THEN
+        RAISE EXCEPTION 'Vehicle is scheduled for maintenance during the requested dates.'
+            USING ERRCODE = '23P01';
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS bookings_check_maintenance ON public.bookings;
+CREATE TRIGGER bookings_check_maintenance
+    BEFORE INSERT OR UPDATE OF vehicle_id, pickup_datetime, return_datetime, status
+    ON public.bookings
+    FOR EACH ROW
+    EXECUTE FUNCTION public.prevent_booking_during_maintenance();
 
 -- ===================================================================
 -- Row Level Security (RLS) Policies (Enable Public Anon Read/Write for Demo)

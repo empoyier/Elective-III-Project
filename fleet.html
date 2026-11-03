@@ -10,6 +10,7 @@
     <script src="assets/js/vehicle-images.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/availability.js"></script>
 </head>
 <body>
 
@@ -92,6 +93,7 @@
                 </button>
             </div>
         </form>
+        <div id="availability-message" role="status" aria-live="polite" style="margin-top:12px;"></div>
     </div>
 </div>
 
@@ -142,6 +144,9 @@
 let allVehicles = [];
 let categories = [];
 let currentCategory = '';
+let unavailableVehicleIds = new Set();
+let availabilityError = '';
+let availabilityRequestId = 0;
 
 async function loadFleet() {
     initPublicHeader('fleet');
@@ -167,7 +172,7 @@ async function loadFleet() {
         allVehicles = vehRes.data || [];
 
         renderCategories();
-        renderVehicles();
+        await applyFilters();
     } catch (err) {
         document.getElementById('fleet-loading').innerHTML = `
             <div class="alert alert-danger" style="max-width:600px; margin:auto;">
@@ -196,12 +201,61 @@ function filterByCategory(slug) {
 }
 
 function resetFilters() {
+    availabilityRequestId += 1;
     currentCategory = '';
     document.getElementById('filter-location').selectedIndex = 0;
     document.getElementById('filter-search').value = '';
     document.getElementById('filter-pickup').value = '';
     document.getElementById('filter-return').value = '';
+    unavailableVehicleIds = new Set();
+    availabilityError = '';
+    document.getElementById('availability-message').textContent = '';
     renderCategories();
+    renderVehicles();
+}
+
+async function applyFilters() {
+    const requestId = ++availabilityRequestId;
+    const pickup = document.getElementById('filter-pickup').value;
+    const returnDt = document.getElementById('filter-return').value;
+    const message = document.getElementById('availability-message');
+    availabilityError = '';
+
+    if (!pickup && !returnDt) {
+        unavailableVehicleIds = new Set();
+        message.textContent = '';
+        renderVehicles();
+        return;
+    }
+
+    if (!pickup || !returnDt || new Date(returnDt) <= new Date(pickup)) {
+        availabilityError = 'Enter a valid pickup and return date/time to check vehicle availability.';
+        message.textContent = availabilityError;
+        message.className = 'alert alert-danger';
+        renderVehicles();
+        return;
+    }
+
+    message.textContent = 'Checking vehicle availability...';
+    message.className = '';
+
+    try {
+        const unavailableIds = await getUnavailableVehicleIds(pickup, returnDt);
+        if (requestId !== availabilityRequestId) return;
+        unavailableVehicleIds = unavailableIds;
+        const availableCount = allVehicles.filter(vehicle =>
+            (!vehicle.operational_status || vehicle.operational_status === 'available') &&
+            !unavailableVehicleIds.has(Number(vehicle.id))
+        ).length;
+        message.textContent = `${availableCount} vehicle${availableCount === 1 ? '' : 's'} available for these dates.`;
+        message.className = 'alert alert-success';
+    } catch (error) {
+        if (requestId !== availabilityRequestId) return;
+        availabilityError = `Could not verify vehicle availability: ${error.message}`;
+        message.textContent = availabilityError;
+        message.className = 'alert alert-danger';
+    }
+
     renderVehicles();
 }
 
@@ -213,6 +267,7 @@ function renderVehicles() {
 
     let filtered = allVehicles.filter(v => {
         if (v.operational_status && v.operational_status !== 'available') return false;
+        if (unavailableVehicleIds.has(Number(v.id))) return false;
         
         if (currentCategory) {
             const vSlug = v.vehicle_categories?.slug || '';
@@ -232,6 +287,12 @@ function renderVehicles() {
     const container = document.getElementById('fleet-container');
 
     loading.style.display = 'none';
+
+    if (availabilityError) {
+        empty.style.display = 'none';
+        container.style.display = 'none';
+        return;
+    }
 
     if (filtered.length === 0) {
         empty.style.display = 'block';
@@ -316,8 +377,11 @@ function renderVehicles() {
 
 document.getElementById('filter-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    renderVehicles();
+    applyFilters();
 });
+
+document.getElementById('filter-pickup').addEventListener('change', applyFilters);
+document.getElementById('filter-return').addEventListener('change', applyFilters);
 
 document.addEventListener('DOMContentLoaded', loadFleet);
 </script>

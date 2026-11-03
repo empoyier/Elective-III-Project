@@ -11,6 +11,7 @@
     <script src="assets/js/vehicle-images.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/availability.js"></script>
 </head>
 
 <body>
@@ -214,6 +215,8 @@
                                     id="veh-meta">
                                     Plate: — &bull; Auto &bull; 5 Seats
                                 </div>
+                                <div id="booking-availability-status" role="status" aria-live="polite"
+                                    style="font-size:12px; margin-bottom:16px;"></div>
 
                                 <div class="price-summary-box">
                                     <h4
@@ -277,6 +280,7 @@
         let currentVehicle = null;
         let addonsList = [];
         let currentUserObj = null;
+        let availabilityCheckId = 0;
 
         function pad(n) { return n < 10 ? '0' + n : n; }
         function toInputDate(d) {
@@ -335,6 +339,7 @@
 
                 renderAddons();
                 calculatePricing();
+                await checkSelectedVehicleAvailability();
             } catch (err) {
                 const alertEl = document.getElementById('booking-alert');
                 alertEl.textContent = `Unable to load reservation details: ${err.message || err}`;
@@ -424,6 +429,47 @@
             return `APX-${year}-${hex}`;
         }
 
+        async function checkSelectedVehicleAvailability() {
+            if (!currentVehicle) return false;
+
+            const checkId = ++availabilityCheckId;
+            const pickup = document.getElementById('pickup_datetime').value;
+            const returnDt = document.getElementById('return_datetime').value;
+            const status = document.getElementById('booking-availability-status');
+
+            if (!pickup || !returnDt || new Date(returnDt) <= new Date(pickup)) {
+                status.textContent = 'Choose a valid pickup and return date/time to check availability.';
+                status.style.color = 'var(--apex-danger, #DC2626)';
+                return false;
+            }
+
+            status.textContent = 'Checking availability...';
+            status.style.color = 'var(--apex-text-muted)';
+
+            try {
+                const unavailableIds = await getUnavailableVehicleIds(pickup, returnDt);
+                if (checkId !== availabilityCheckId) return false;
+
+                if (unavailableIds.has(Number(currentVehicle.id))) {
+                    status.textContent = 'This vehicle is unavailable for those dates. Please choose another schedule or vehicle.';
+                    status.style.color = 'var(--apex-danger, #DC2626)';
+                    return false;
+                }
+
+                status.textContent = 'This vehicle is available for your selected dates.';
+                status.style.color = 'var(--apex-success, #16A34A)';
+                return true;
+            } catch (error) {
+                if (checkId !== availabilityCheckId) return false;
+                status.textContent = `Unable to verify availability: ${error.message}`;
+                status.style.color = 'var(--apex-danger, #DC2626)';
+                return false;
+            }
+        }
+
+        document.getElementById('pickup_datetime').addEventListener('change', checkSelectedVehicleAvailability);
+        document.getElementById('return_datetime').addEventListener('change', checkSelectedVehicleAvailability);
+
         document.getElementById('booking-wizard-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const alertEl = document.getElementById('booking-alert');
@@ -437,6 +483,13 @@
 
             if (rDate <= pDate) {
                 alertEl.textContent = 'Return date must be strictly after pickup date.';
+                alertEl.style.display = 'block';
+                return;
+            }
+
+            const isAvailable = await checkSelectedVehicleAvailability();
+            if (!isAvailable) {
+                alertEl.textContent = 'Availability could not be confirmed. Please review the schedule or choose another vehicle.';
                 alertEl.style.display = 'block';
                 return;
             }
@@ -458,8 +511,8 @@
                     booking_ref: ref,
                     user_id: currentUserObj.id,
                     vehicle_id: currentVehicle.id,
-                    pickup_datetime: pVal,
-                    return_datetime: rVal,
+                    pickup_datetime: pDate.toISOString(),
+                    return_datetime: rDate.toISOString(),
                     pickup_location: pickupLoc,
                     return_location: returnLoc,
                     total_days: pricing.days,
@@ -473,6 +526,9 @@
                     customer_notes: notes
                 }).select().single();
 
+                if (bError?.code === '23P01') {
+                    throw new Error('This vehicle is no longer available for the selected dates. Please choose another schedule or vehicle.');
+                }
                 if (bError) throw bError;
                 bookingSaved = true;
 
