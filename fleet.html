@@ -356,6 +356,9 @@ function renderVehicles() {
                             <p style="padding:8px 0; border-top:1px solid var(--apex-border-subtle);">
                                 <strong>${Number(review.rating)}/5</strong>
                                 ${review.review_text ? `<br>${sanitize(review.review_text)}` : ''}
+                                <span style="display:block; font-size:11px; color:var(--apex-text-muted); margin-top:4px;">
+                                    Reviewed ${new Date(review.created_at).toLocaleDateString()}
+                                </span>
                             </p>
                         `).join('')}
                     </div>
