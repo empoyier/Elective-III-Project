@@ -280,6 +280,9 @@ document.getElementById('vehicle-review-form').addEventListener('submit', async 
             review_text: document.getElementById('review-text').value.trim() || null
         });
 
+        if (error?.code === '23505') {
+            throw new Error('This reservation already has a review.');
+        }
         if (error) throw error;
 
         document.getElementById('vehicle-review-dialog').close();
