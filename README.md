@@ -13,6 +13,7 @@ The current frontend does not require build-time environment variables or packag
 ## Supabase setup
 
 - Apply `database/supabase_schema.sql` in the Supabase SQL Editor to create the tables and demo data.
+- For an existing project, apply `database/migrations/20261103230000_add_reviews_and_notifications.sql` to add booking notifications and vehicle reviews without rerunning the demo seed script or booking-overlap constraint.
 - Apply `database/vehicle_image_storage.sql` if admin vehicle image uploads are needed.
 - Set the Supabase Auth Site URL to your deployed Vercel URL and add the production URL (and any custom domain) to the redirect URL allowlist.
 
@@ -28,4 +29,4 @@ The current frontend does not require build-time environment variables or packag
 - **Verified vehicle reviews:** Customers can rate and review vehicles after a booking is returned.
 - **Admin dashboard:** Manage vehicles (including image uploads), bookings, and customers.
 
-Availability, notifications, reviews, and their database triggers are defined in `database/supabase_schema.sql`. Existing Supabase projects should rerun that script after resolving any already-overlapping active reservations.
+Availability constraints, notifications, reviews, and their database triggers are defined in `database/supabase_schema.sql`. The migration under `database/migrations/` can be used to apply notifications and reviews independently when an existing project's bookings prevent adding the availability constraint.
