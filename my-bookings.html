@@ -110,6 +110,34 @@
     </div>
 </div>
 
+<dialog id="vehicle-review-dialog" style="border:0; border-radius:8px; padding:24px; width:min(520px, calc(100% - 32px)); box-shadow:0 20px 60px rgba(15,23,42,.25);">
+    <form id="vehicle-review-form">
+        <h2 id="review-dialog-title" style="font-size:20px; margin-bottom:16px;">Review your rental</h2>
+        <input type="hidden" id="review-booking-id">
+        <div class="form-group">
+            <label class="form-label" for="review-rating">Rating *</label>
+            <select id="review-rating" class="form-control" required>
+                <option value="">Select a rating</option>
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Average</option>
+                <option value="2">2 - Poor</option>
+                <option value="1">1 - Very poor</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="review-text">Your review (optional)</label>
+            <textarea id="review-text" class="form-control" rows="4" maxlength="1000"
+                placeholder="Share your experience with this vehicle"></textarea>
+        </div>
+        <div id="review-error" class="alert alert-danger" role="alert" style="display:none;"></div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('vehicle-review-dialog').close()">Cancel</button>
+            <button type="submit" id="submit-review-button" class="btn btn-primary">Submit review</button>
+        </div>
+    </form>
+</dialog>
+
 </main>
 
 <footer class="site-footer">
@@ -120,6 +148,7 @@
 
 <script>
 let currentUser = null;
+let reviewableBookings = new Map();
 
 async function loadBookings() {
     initPublicHeader('bookings');
@@ -139,6 +168,15 @@ async function loadBookings() {
             .order('created_at', { ascending: false });
 
         if (error) throw error;
+
+        const { data: reviews, error: reviewsError } = await supabaseClient
+            .from('vehicle_reviews')
+            .select('booking_id')
+            .eq('user_id', currentUser.id);
+
+        if (reviewsError) throw reviewsError;
+        const reviewedBookingIds = new Set((reviews || []).map(review => String(review.booking_id)));
+        reviewableBookings = new Map();
 
         document.getElementById('table-loading').style.display = 'none';
 
@@ -168,7 +206,12 @@ async function loadBookings() {
             } else if (b.status === 'pending' || b.status === 'approved') {
                 actionHtml = `<button onclick="cancelBooking(${b.id}, '${sanitize(b.booking_ref)}')" class="btn btn-danger btn-sm">Cancel</button>`;
             } else if (b.status === 'returned') {
-                actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Completed</span>`;
+                if (reviewedBookingIds.has(String(b.id))) {
+                    actionHtml = '<span style="font-size:12px; color:var(--apex-text-muted);">Reviewed</span>';
+                } else {
+                    reviewableBookings.set(Number(b.id), b);
+                    actionHtml = `<button type="button" onclick="openVehicleReview(${Number(b.id)})" class="btn btn-primary btn-sm">Review vehicle</button>`;
+                }
             } else {
                 actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Closed</span>`;
             }
@@ -198,6 +241,59 @@ async function loadBookings() {
         `;
     }
 }
+
+function openVehicleReview(bookingId) {
+    const booking = reviewableBookings.get(Number(bookingId));
+    if (!booking) return;
+
+    const vehicleName = `${booking.vehicles?.brand || ''} ${booking.vehicles?.model || 'vehicle'}`.trim();
+    document.getElementById('review-dialog-title').textContent = `Review ${vehicleName}`;
+    document.getElementById('review-booking-id').value = booking.id;
+    document.getElementById('review-rating').value = '';
+    document.getElementById('review-text').value = '';
+    document.getElementById('review-error').style.display = 'none';
+    document.getElementById('vehicle-review-dialog').showModal();
+}
+
+document.getElementById('vehicle-review-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const bookingId = Number(document.getElementById('review-booking-id').value);
+    const booking = reviewableBookings.get(bookingId);
+    const submitButton = document.getElementById('submit-review-button');
+    const errorElement = document.getElementById('review-error');
+
+    if (!booking) {
+        errorElement.textContent = 'This booking is not available for review.';
+        errorElement.style.display = 'block';
+        return;
+    }
+
+    submitButton.disabled = true;
+    errorElement.style.display = 'none';
+
+    try {
+        const { error } = await supabaseClient.from('vehicle_reviews').insert({
+            booking_id: booking.id,
+            user_id: currentUser.id,
+            vehicle_id: booking.vehicle_id,
+            rating: Number(document.getElementById('review-rating').value),
+            review_text: document.getElementById('review-text').value.trim() || null
+        });
+
+        if (error) throw error;
+
+        document.getElementById('vehicle-review-dialog').close();
+        const message = document.getElementById('booking-msg');
+        message.textContent = 'Thanks for sharing your review.';
+        message.style.display = 'block';
+        await loadBookings();
+    } catch (error) {
+        errorElement.textContent = `Unable to submit your review: ${error.message}`;
+        errorElement.style.display = 'block';
+    } finally {
+        submitButton.disabled = false;
+    }
+});
 
 async function loadNotifications() {
     const loading = document.getElementById('notifications-loading');
