@@ -41,6 +41,19 @@
 <div class="container" style="padding:32px 0 80px;">
     <div id="booking-msg" class="alert alert-success" style="display:none;"></div>
 
+    <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+            <span class="card-title">Booking Notifications <span id="notification-unread-count"></span></span>
+            <button type="button" id="mark-all-notifications-read" class="btn btn-secondary btn-sm"
+                style="display:none;" onclick="markAllNotificationsRead()">Mark all as read</button>
+        </div>
+        <div id="notifications-loading" style="padding:20px; color:var(--apex-text-muted);">Loading notifications...</div>
+        <div id="notifications-empty" style="display:none; padding:20px; color:var(--apex-text-muted);">
+            You're all caught up. Booking updates will appear here.
+        </div>
+        <div id="notifications-list"></div>
+    </div>
+
     <!-- Active Rental Spotlight Banner -->
     <div id="active-rental-banner" style="display:none; border:2px solid var(--apex-primary); margin-bottom:32px; background:#F8FAFC;" class="card">
         <div class="card-body" style="padding:28px;">
@@ -116,6 +129,8 @@ async function loadBookings() {
         return;
     }
 
+    loadNotifications();
+
     try {
         const { data: bookings, error } = await supabaseClient
             .from('bookings')
@@ -181,6 +196,94 @@ async function loadBookings() {
         document.getElementById('table-loading').innerHTML = `
             <div class="alert alert-danger" style="margin:20px;">${sanitize(err.message)}</div>
         `;
+    }
+}
+
+async function loadNotifications() {
+    const loading = document.getElementById('notifications-loading');
+    const empty = document.getElementById('notifications-empty');
+    const list = document.getElementById('notifications-list');
+    const count = document.getElementById('notification-unread-count');
+    const markAllButton = document.getElementById('mark-all-notifications-read');
+    loading.style.display = 'block';
+    empty.style.display = 'none';
+    list.innerHTML = '';
+    count.textContent = '';
+    markAllButton.style.display = 'none';
+    loading.className = '';
+
+    try {
+        const [notificationResult, unreadResult] = await Promise.all([
+            supabaseClient
+                .from('booking_notifications')
+                .select('id,title,message,is_read,created_at')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false })
+                .limit(20),
+            supabaseClient
+                .from('booking_notifications')
+                .select('id', { count: 'exact', head: true })
+                .eq('user_id', currentUser.id)
+                .eq('is_read', false)
+        ]);
+
+        if (notificationResult.error) throw notificationResult.error;
+        if (unreadResult.error) throw unreadResult.error;
+
+        const items = notificationResult.data || [];
+        const unreadCount = unreadResult.count || 0;
+        count.textContent = unreadCount ? `(${unreadCount} unread)` : '';
+        markAllButton.style.display = unreadCount ? 'inline-flex' : 'none';
+        loading.style.display = 'none';
+
+        if (!items.length) {
+            empty.style.display = 'block';
+            return;
+        }
+
+        list.innerHTML = items.map(item => `
+            <div style="padding:16px 20px; border-top:1px solid var(--apex-border-subtle); ${item.is_read ? '' : 'background:#F8FAFC;'}">
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px;">
+                    <strong>${sanitize(item.title)}</strong>
+                    <span style="font-size:12px; color:var(--apex-text-muted);">${sanitize(new Date(item.created_at).toLocaleString())}</span>
+                </div>
+                <p style="font-size:13px; color:var(--apex-text-secondary); margin-top:5px;">${sanitize(item.message)}</p>
+                ${item.is_read ? '' : `<button type="button" class="btn btn-secondary btn-sm" style="margin-top:10px;" onclick="markNotificationRead(${Number(item.id)})">Mark as read</button>`}
+            </div>
+        `).join('');
+    } catch (error) {
+        loading.className = 'alert alert-danger';
+        loading.textContent = `Unable to load booking notifications: ${sanitize(error.message)}`;
+    }
+}
+
+async function markNotificationRead(notificationId) {
+    try {
+        const { error } = await supabaseClient
+            .from('booking_notifications')
+            .update({ is_read: true })
+            .eq('id', notificationId)
+            .eq('user_id', currentUser.id);
+
+        if (error) throw error;
+        await loadNotifications();
+    } catch (error) {
+        showToast(`Unable to update notification: ${error.message}`, 'danger');
+    }
+}
+
+async function markAllNotificationsRead() {
+    try {
+        const { error } = await supabaseClient
+            .from('booking_notifications')
+            .update({ is_read: true })
+            .eq('user_id', currentUser.id)
+            .eq('is_read', false);
+
+        if (error) throw error;
+        await loadNotifications();
+    } catch (error) {
+        showToast(`Unable to update notifications: ${error.message}`, 'danger');
     }
 }
 
