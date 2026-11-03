@@ -23,4 +23,9 @@ The current frontend does not require build-time environment variables or packag
 - **Browse vehicles:** View the fleet, photos, and rental details.
 - **User accounts:** Sign up and log in through Supabase Authentication.
 - **Online booking:** Reserve vehicles and view bookings.
+- **Date-based availability:** Filter vehicles by rental dates; overlapping reservations and scheduled maintenance are blocked.
+- **In-app booking notifications:** See when a reservation is submitted or its status changes.
+- **Verified vehicle reviews:** Customers can rate and review vehicles after a booking is returned.
 - **Admin dashboard:** Manage vehicles (including image uploads), bookings, and customers.
+
+Availability, notifications, reviews, and their database triggers are defined in `database/supabase_schema.sql`. Existing Supabase projects should rerun that script after resolving any already-overlapping active reservations.

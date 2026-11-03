@@ -41,6 +41,19 @@
 <div class="container" style="padding:32px 0 80px;">
     <div id="booking-msg" class="alert alert-success" style="display:none;"></div>
 
+    <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+            <span class="card-title">Booking Notifications <span id="notification-unread-count"></span></span>
+            <button type="button" id="mark-all-notifications-read" class="btn btn-secondary btn-sm"
+                style="display:none;" onclick="markAllNotificationsRead()">Mark all as read</button>
+        </div>
+        <div id="notifications-loading" style="padding:20px; color:var(--apex-text-muted);">Loading notifications...</div>
+        <div id="notifications-empty" style="display:none; padding:20px; color:var(--apex-text-muted);">
+            You're all caught up. Booking updates will appear here.
+        </div>
+        <div id="notifications-list"></div>
+    </div>
+
     <!-- Active Rental Spotlight Banner -->
     <div id="active-rental-banner" style="display:none; border:2px solid var(--apex-primary); margin-bottom:32px; background:#F8FAFC;" class="card">
         <div class="card-body" style="padding:28px;">
@@ -97,6 +110,34 @@
     </div>
 </div>
 
+<dialog id="vehicle-review-dialog" style="border:0; border-radius:8px; padding:24px; width:min(520px, calc(100% - 32px)); box-shadow:0 20px 60px rgba(15,23,42,.25);">
+    <form id="vehicle-review-form">
+        <h2 id="review-dialog-title" style="font-size:20px; margin-bottom:16px;">Review your rental</h2>
+        <input type="hidden" id="review-booking-id">
+        <div class="form-group">
+            <label class="form-label" for="review-rating">Rating *</label>
+            <select id="review-rating" class="form-control" required>
+                <option value="">Select a rating</option>
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Average</option>
+                <option value="2">2 - Poor</option>
+                <option value="1">1 - Very poor</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="review-text">Your review (optional)</label>
+            <textarea id="review-text" class="form-control" rows="4" maxlength="1000"
+                placeholder="Share your experience with this vehicle"></textarea>
+        </div>
+        <div id="review-error" class="alert alert-danger" role="alert" style="display:none;"></div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('vehicle-review-dialog').close()">Cancel</button>
+            <button type="submit" id="submit-review-button" class="btn btn-primary">Submit review</button>
+        </div>
+    </form>
+</dialog>
+
 </main>
 
 <footer class="site-footer">
@@ -107,6 +148,7 @@
 
 <script>
 let currentUser = null;
+let reviewableBookings = new Map();
 
 async function loadBookings() {
     initPublicHeader('bookings');
@@ -116,6 +158,8 @@ async function loadBookings() {
         return;
     }
 
+    loadNotifications();
+
     try {
         const { data: bookings, error } = await supabaseClient
             .from('bookings')
@@ -124,6 +168,15 @@ async function loadBookings() {
             .order('created_at', { ascending: false });
 
         if (error) throw error;
+
+        const { data: reviews, error: reviewsError } = await supabaseClient
+            .from('vehicle_reviews')
+            .select('booking_id')
+            .eq('user_id', currentUser.id);
+
+        if (reviewsError) throw reviewsError;
+        const reviewedBookingIds = new Set((reviews || []).map(review => String(review.booking_id)));
+        reviewableBookings = new Map();
 
         document.getElementById('table-loading').style.display = 'none';
 
@@ -153,7 +206,12 @@ async function loadBookings() {
             } else if (b.status === 'pending' || b.status === 'approved') {
                 actionHtml = `<button onclick="cancelBooking(${b.id}, '${sanitize(b.booking_ref)}')" class="btn btn-danger btn-sm">Cancel</button>`;
             } else if (b.status === 'returned') {
-                actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Completed</span>`;
+                if (reviewedBookingIds.has(String(b.id))) {
+                    actionHtml = '<span style="font-size:12px; color:var(--apex-text-muted);">Reviewed</span>';
+                } else {
+                    reviewableBookings.set(Number(b.id), b);
+                    actionHtml = `<button type="button" onclick="openVehicleReview(${Number(b.id)})" class="btn btn-primary btn-sm">Review vehicle</button>`;
+                }
             } else {
                 actionHtml = `<span style="font-size:12px; color:var(--apex-text-muted);">Closed</span>`;
             }
@@ -181,6 +239,147 @@ async function loadBookings() {
         document.getElementById('table-loading').innerHTML = `
             <div class="alert alert-danger" style="margin:20px;">${sanitize(err.message)}</div>
         `;
+    }
+}
+
+function openVehicleReview(bookingId) {
+    const booking = reviewableBookings.get(Number(bookingId));
+    if (!booking) return;
+
+    const vehicleName = `${booking.vehicles?.brand || ''} ${booking.vehicles?.model || 'vehicle'}`.trim();
+    document.getElementById('review-dialog-title').textContent = `Review ${vehicleName}`;
+    document.getElementById('review-booking-id').value = booking.id;
+    document.getElementById('review-rating').value = '';
+    document.getElementById('review-text').value = '';
+    document.getElementById('review-error').style.display = 'none';
+    document.getElementById('vehicle-review-dialog').showModal();
+}
+
+document.getElementById('vehicle-review-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const bookingId = Number(document.getElementById('review-booking-id').value);
+    const booking = reviewableBookings.get(bookingId);
+    const submitButton = document.getElementById('submit-review-button');
+    const errorElement = document.getElementById('review-error');
+
+    if (!booking) {
+        errorElement.textContent = 'This booking is not available for review.';
+        errorElement.style.display = 'block';
+        return;
+    }
+
+    submitButton.disabled = true;
+    errorElement.style.display = 'none';
+
+    try {
+        const { error } = await supabaseClient.from('vehicle_reviews').insert({
+            booking_id: booking.id,
+            user_id: currentUser.id,
+            vehicle_id: booking.vehicle_id,
+            rating: Number(document.getElementById('review-rating').value),
+            review_text: document.getElementById('review-text').value.trim() || null
+        });
+
+        if (error) throw error;
+
+        document.getElementById('vehicle-review-dialog').close();
+        const message = document.getElementById('booking-msg');
+        message.textContent = 'Thanks for sharing your review.';
+        message.style.display = 'block';
+        await loadBookings();
+    } catch (error) {
+        errorElement.textContent = `Unable to submit your review: ${error.message}`;
+        errorElement.style.display = 'block';
+    } finally {
+        submitButton.disabled = false;
+    }
+});
+
+async function loadNotifications() {
+    const loading = document.getElementById('notifications-loading');
+    const empty = document.getElementById('notifications-empty');
+    const list = document.getElementById('notifications-list');
+    const count = document.getElementById('notification-unread-count');
+    const markAllButton = document.getElementById('mark-all-notifications-read');
+    loading.style.display = 'block';
+    empty.style.display = 'none';
+    list.innerHTML = '';
+    count.textContent = '';
+    markAllButton.style.display = 'none';
+    loading.className = '';
+
+    try {
+        const [notificationResult, unreadResult] = await Promise.all([
+            supabaseClient
+                .from('booking_notifications')
+                .select('id,title,message,is_read,created_at')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false })
+                .limit(20),
+            supabaseClient
+                .from('booking_notifications')
+                .select('id', { count: 'exact', head: true })
+                .eq('user_id', currentUser.id)
+                .eq('is_read', false)
+        ]);
+
+        if (notificationResult.error) throw notificationResult.error;
+        if (unreadResult.error) throw unreadResult.error;
+
+        const items = notificationResult.data || [];
+        const unreadCount = unreadResult.count || 0;
+        count.textContent = unreadCount ? `(${unreadCount} unread)` : '';
+        markAllButton.style.display = unreadCount ? 'inline-flex' : 'none';
+        loading.style.display = 'none';
+
+        if (!items.length) {
+            empty.style.display = 'block';
+            return;
+        }
+
+        list.innerHTML = items.map(item => `
+            <div style="padding:16px 20px; border-top:1px solid var(--apex-border-subtle); ${item.is_read ? '' : 'background:#F8FAFC;'}">
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px;">
+                    <strong>${sanitize(item.title)}</strong>
+                    <span style="font-size:12px; color:var(--apex-text-muted);">${sanitize(new Date(item.created_at).toLocaleString())}</span>
+                </div>
+                <p style="font-size:13px; color:var(--apex-text-secondary); margin-top:5px;">${sanitize(item.message)}</p>
+                ${item.is_read ? '' : `<button type="button" class="btn btn-secondary btn-sm" style="margin-top:10px;" onclick="markNotificationRead(${Number(item.id)})">Mark as read</button>`}
+            </div>
+        `).join('');
+    } catch (error) {
+        loading.className = 'alert alert-danger';
+        loading.textContent = `Unable to load booking notifications: ${sanitize(error.message)}`;
+    }
+}
+
+async function markNotificationRead(notificationId) {
+    try {
+        const { error } = await supabaseClient
+            .from('booking_notifications')
+            .update({ is_read: true })
+            .eq('id', notificationId)
+            .eq('user_id', currentUser.id);
+
+        if (error) throw error;
+        await loadNotifications();
+    } catch (error) {
+        showToast(`Unable to update notification: ${error.message}`, 'danger');
+    }
+}
+
+async function markAllNotificationsRead() {
+    try {
+        const { error } = await supabaseClient
+            .from('booking_notifications')
+            .update({ is_read: true })
+            .eq('user_id', currentUser.id)
+            .eq('is_read', false);
+
+        if (error) throw error;
+        await loadNotifications();
+    } catch (error) {
+        showToast(`Unable to update notifications: ${error.message}`, 'danger');
     }
 }
 

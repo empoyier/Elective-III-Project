@@ -10,6 +10,7 @@
     <script src="assets/js/vehicle-images.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/availability.js"></script>
 </head>
 <body>
 
@@ -92,6 +93,7 @@
                 </button>
             </div>
         </form>
+        <div id="availability-message" role="status" aria-live="polite" style="margin-top:12px;"></div>
     </div>
 </div>
 
@@ -142,6 +144,10 @@
 let allVehicles = [];
 let categories = [];
 let currentCategory = '';
+let unavailableVehicleIds = new Set();
+let availabilityError = '';
+let availabilityRequestId = 0;
+let reviewsByVehicle = new Map();
 
 async function loadFleet() {
     initPublicHeader('fleet');
@@ -155,19 +161,27 @@ async function loadFleet() {
     try {
         if (!supabaseClient) throw new Error('Supabase client failed to initialize. Check the Supabase script and configuration.');
 
-        const [catRes, vehRes] = await Promise.all([
+        const [catRes, vehRes, reviewsRes] = await Promise.all([
             supabaseClient.from('vehicle_categories').select('*').order('name'),
-            supabaseClient.from('vehicles').select('*, vehicle_categories(name, slug)').order('daily_rate', { ascending: true })
+            supabaseClient.from('vehicles').select('*, vehicle_categories(name, slug)').order('daily_rate', { ascending: true }),
+            supabaseClient.from('vehicle_reviews').select('vehicle_id,rating,review_text,created_at').order('created_at', { ascending: false })
         ]);
 
         if (catRes.error) throw catRes.error;
         if (vehRes.error) throw vehRes.error;
+        if (reviewsRes.error) throw reviewsRes.error;
 
         categories = catRes.data || [];
         allVehicles = vehRes.data || [];
+        reviewsByVehicle = new Map();
+        (reviewsRes.data || []).forEach(review => {
+            const vehicleId = Number(review.vehicle_id);
+            if (!reviewsByVehicle.has(vehicleId)) reviewsByVehicle.set(vehicleId, []);
+            reviewsByVehicle.get(vehicleId).push(review);
+        });
 
         renderCategories();
-        renderVehicles();
+        await applyFilters();
     } catch (err) {
         document.getElementById('fleet-loading').innerHTML = `
             <div class="alert alert-danger" style="max-width:600px; margin:auto;">
@@ -196,12 +210,63 @@ function filterByCategory(slug) {
 }
 
 function resetFilters() {
+    availabilityRequestId += 1;
     currentCategory = '';
     document.getElementById('filter-location').selectedIndex = 0;
     document.getElementById('filter-search').value = '';
     document.getElementById('filter-pickup').value = '';
     document.getElementById('filter-return').value = '';
+    unavailableVehicleIds = new Set();
+    availabilityError = '';
+    document.getElementById('availability-message').textContent = '';
     renderCategories();
+    renderVehicles();
+}
+
+async function applyFilters() {
+    const requestId = ++availabilityRequestId;
+    const pickup = document.getElementById('filter-pickup').value;
+    const returnDt = document.getElementById('filter-return').value;
+    const message = document.getElementById('availability-message');
+    availabilityError = '';
+
+    if (!pickup && !returnDt) {
+        unavailableVehicleIds = new Set();
+        message.textContent = '';
+        renderVehicles();
+        return;
+    }
+
+    if (!pickup || !returnDt || new Date(returnDt) <= new Date(pickup)) {
+        availabilityError = 'Enter a valid pickup and return date/time to check vehicle availability.';
+        message.textContent = availabilityError;
+        message.className = 'alert alert-danger';
+        renderVehicles();
+        return;
+    }
+
+    message.textContent = 'Checking vehicle availability...';
+    message.className = '';
+    document.getElementById('fleet-container').style.display = 'none';
+    document.getElementById('empty-state').style.display = 'none';
+
+    try {
+        const unavailableIds = await getUnavailableVehicleIds(pickup, returnDt);
+        if (requestId !== availabilityRequestId) return;
+        unavailableVehicleIds = unavailableIds;
+        const availableCount = allVehicles.filter(vehicle =>
+            (!vehicle.operational_status || vehicle.operational_status === 'available') &&
+            !unavailableVehicleIds.has(Number(vehicle.id))
+        ).length;
+        message.textContent = `${availableCount} vehicle${availableCount === 1 ? '' : 's'} available for these dates.`;
+        message.className = 'alert alert-success';
+    } catch (error) {
+        if (requestId !== availabilityRequestId) return;
+        availabilityError = `Could not verify vehicle availability: ${error.message}`;
+        message.textContent = availabilityError;
+        message.className = 'alert alert-danger';
+    }
+
     renderVehicles();
 }
 
@@ -213,6 +278,7 @@ function renderVehicles() {
 
     let filtered = allVehicles.filter(v => {
         if (v.operational_status && v.operational_status !== 'available') return false;
+        if (unavailableVehicleIds.has(Number(v.id))) return false;
         
         if (currentCategory) {
             const vSlug = v.vehicle_categories?.slug || '';
@@ -232,6 +298,12 @@ function renderVehicles() {
     const container = document.getElementById('fleet-container');
 
     loading.style.display = 'none';
+
+    if (availabilityError) {
+        empty.style.display = 'none';
+        container.style.display = 'none';
+        return;
+    }
 
     if (filtered.length === 0) {
         empty.style.display = 'block';
@@ -259,6 +331,23 @@ function renderVehicles() {
         const localImage = getLocalVehicleImage(veh.brand, veh.model);
         const imageCredit = getLocalVehicleImageCredit(veh.brand, veh.model) || (!localImage ? veh.image_credit : '');
         const imageSrc = localImage || veh.image_url || '';
+        const reviews = reviewsByVehicle.get(Number(veh.id)) || [];
+        const averageRating = reviews.length
+            ? (reviews.reduce((total, review) => total + Number(review.rating), 0) / reviews.length).toFixed(1)
+            : null;
+        const reviewsHtml = reviews.length
+            ? `<details style="font-size:12px; color:var(--apex-text-secondary); margin-bottom:12px;">
+                    <summary style="cursor:pointer; color:var(--apex-primary);">${averageRating}/5 from ${reviews.length} verified review${reviews.length === 1 ? '' : 's'}</summary>
+                    <div style="padding:8px 0;">
+                        ${reviews.slice(0, 3).map(review => `
+                            <p style="padding:8px 0; border-top:1px solid var(--apex-border-subtle);">
+                                <strong>${Number(review.rating)}/5</strong>
+                                ${review.review_text ? `<br>${sanitize(review.review_text)}` : ''}
+                            </p>
+                        `).join('')}
+                    </div>
+                </details>`
+            : '<p style="font-size:12px; color:var(--apex-text-muted); margin-bottom:12px;">No customer reviews yet.</p>';
 
         return `
             <div class="vehicle-card">
@@ -294,6 +383,7 @@ function renderVehicles() {
                     <div class="vehicle-features-list">
                         ${feats.slice(0, 3).map(f => `<span class="feature-tag">${sanitize(f)}</span>`).join('')}
                     </div>
+                    ${reviewsHtml}
 
                     <p style="font-size:12px; color:var(--apex-text-secondary); line-height:1.5; margin-bottom:14px; flex:1;">
                         ${sanitize((veh.description || 'Premium well-maintained rental vehicle.').substring(0, 110))}...
@@ -316,8 +406,11 @@ function renderVehicles() {
 
 document.getElementById('filter-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    renderVehicles();
+    applyFilters();
 });
+
+document.getElementById('filter-pickup').addEventListener('change', applyFilters);
+document.getElementById('filter-return').addEventListener('change', applyFilters);
 
 document.addEventListener('DOMContentLoaded', loadFleet);
 </script>
