@@ -308,8 +308,15 @@
             returnDt.setHours(18, 0, 0, 0);
 
             const params = new URLSearchParams(window.location.search);
-            document.getElementById('pickup_datetime').value = params.get('pickup_datetime') || toInputDate(tomorrow);
-            document.getElementById('return_datetime').value = params.get('return_datetime') || toInputDate(returnDt);
+            const pickupInput = document.getElementById('pickup_datetime');
+            const returnInput = document.getElementById('return_datetime');
+            const minPickup = new Date(now);
+            minPickup.setSeconds(0, 0);
+            minPickup.setMinutes(minPickup.getMinutes() + 1);
+            pickupInput.min = toInputDate(minPickup);
+            pickupInput.value = params.get('pickup_datetime') || toInputDate(tomorrow);
+            returnInput.value = params.get('return_datetime') || toInputDate(returnDt);
+            returnInput.min = pickupInput.value;
             if (params.get('location')) {
                 document.getElementById('pickup_location').value = params.get('location');
             }
@@ -467,7 +474,10 @@
             }
         }
 
-        document.getElementById('pickup_datetime').addEventListener('change', checkSelectedVehicleAvailability);
+        document.getElementById('pickup_datetime').addEventListener('change', () => {
+            document.getElementById('return_datetime').min = document.getElementById('pickup_datetime').value;
+            checkSelectedVehicleAvailability();
+        });
         document.getElementById('return_datetime').addEventListener('change', checkSelectedVehicleAvailability);
 
         document.getElementById('booking-wizard-form').addEventListener('submit', async (e) => {
@@ -480,6 +490,12 @@
             const rVal = document.getElementById('return_datetime').value;
             const pDate = new Date(pVal);
             const rDate = new Date(rVal);
+
+            if (pDate <= new Date()) {
+                alertEl.textContent = 'Pickup date and time must be in the future.';
+                alertEl.style.display = 'block';
+                return;
+            }
 
             if (rDate <= pDate) {
                 alertEl.textContent = 'Return date must be strictly after pickup date.';
