@@ -17,6 +17,15 @@ The current frontend does not require build-time environment variables or packag
 - Apply `database/vehicle_image_storage.sql` if admin vehicle image uploads are needed.
 - Set the Supabase Auth Site URL to your deployed Vercel URL and add the production URL (and any custom domain) to the redirect URL allowlist.
 
+### Enable Google sign-in
+
+1. In Supabase, open **Authentication → Sign In / Providers → Google** and enable Google. Its callback URL is `https://ybwsiaieehefoceueqdl.supabase.co/auth/v1/callback`.
+2. In Google Cloud Console, create a Google OAuth client ID for a web application. Add that Supabase callback URL to its **Authorized redirect URIs**.
+3. Paste the Google client ID and client secret into the Supabase Google provider settings and save.
+4. In Supabase **Authentication → URL Configuration**, set the Site URL to `https://apex-empoy.vercel.app` and add `https://apex-empoy.vercel.app/**` to the allowed redirect URLs.
+
+The Google button is available on both the sign-in and registration pages. Google accounts are added to the customer profile table on their first sign-in; phone and driver's-license details can be provided later when booking.
+
 **Demo deployment only:** the included schema grants unrestricted anonymous access to application tables. Do not use it with real customer data or treat frontend admin checks as authorization. Restrict the Supabase Row Level Security policies and enforce admin permissions server-side before production use.
 
 ## Features
