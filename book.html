@@ -80,12 +80,12 @@
                                     <div class="form-group">
                                         <label class="form-label" for="pickup_datetime">Pickup Date & Time *</label>
                                         <input type="datetime-local" id="pickup_datetime" class="form-control" required
-                                            onchange="calculatePricing()">
+                                            aria-describedby="booking-availability-status" onchange="calculatePricing()">
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="return_datetime">Return Date & Time *</label>
                                         <input type="datetime-local" id="return_datetime" class="form-control" required
-                                            onchange="calculatePricing()">
+                                            aria-describedby="booking-availability-status" onchange="calculatePricing()">
                                     </div>
                                 </div>
 
@@ -149,12 +149,12 @@
                             <div class="card-body">
                                 <div class="booking-fields-grid booking-fields-grid--spaced">
                                     <div class="form-group">
-                                        <label class="form-label">Full Name</label>
-                                        <input type="text" id="cust_name" class="form-control" disabled>
+                                        <label class="form-label" for="cust_name">Full Name</label>
+                                        <input type="text" id="cust_name" class="form-control" autocomplete="name" disabled>
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label">Email Address</label>
-                                        <input type="email" id="cust_email" class="form-control" disabled>
+                                        <label class="form-label" for="cust_email">Email Address</label>
+                                        <input type="email" id="cust_email" class="form-control" autocomplete="email" disabled>
                                     </div>
                                 </div>
 
@@ -163,11 +163,11 @@
                                         <label class="form-label" for="license_number">LTO Driver's License Number
                                             *</label>
                                         <input type="text" id="license_number" class="form-control"
-                                            placeholder="e.g. N01-12-123456" required>
+                                            autocomplete="off" placeholder="e.g. N01-12-123456" required>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="phone">Contact Mobile Number *</label>
-                                        <input type="text" id="phone" class="form-control"
+                                        <input type="tel" id="phone" class="form-control" autocomplete="tel" inputmode="tel"
                                             placeholder="+63 917 123 4567" required>
                                     </div>
                                 </div>
@@ -281,6 +281,7 @@
         let addonsList = [];
         let currentUserObj = null;
         let availabilityCheckId = 0;
+        let bookingSubmissionInProgress = false;
 
         function pad(n) { return n < 10 ? '0' + n : n; }
         function toInputDate(d) {
@@ -308,8 +309,15 @@
             returnDt.setHours(18, 0, 0, 0);
 
             const params = new URLSearchParams(window.location.search);
-            document.getElementById('pickup_datetime').value = params.get('pickup_datetime') || toInputDate(tomorrow);
-            document.getElementById('return_datetime').value = params.get('return_datetime') || toInputDate(returnDt);
+            const pickupInput = document.getElementById('pickup_datetime');
+            const returnInput = document.getElementById('return_datetime');
+            const minPickup = new Date(now);
+            minPickup.setSeconds(0, 0);
+            minPickup.setMinutes(minPickup.getMinutes() + 1);
+            pickupInput.min = toInputDate(minPickup);
+            pickupInput.value = params.get('pickup_datetime') || toInputDate(tomorrow);
+            returnInput.value = params.get('return_datetime') || toInputDate(returnDt);
+            returnInput.min = pickupInput.value;
             if (params.get('location')) {
                 document.getElementById('pickup_location').value = params.get('location');
             }
@@ -467,23 +475,43 @@
             }
         }
 
-        document.getElementById('pickup_datetime').addEventListener('change', checkSelectedVehicleAvailability);
+        document.getElementById('pickup_datetime').addEventListener('change', () => {
+            document.getElementById('return_datetime').min = document.getElementById('pickup_datetime').value;
+            checkSelectedVehicleAvailability();
+        });
         document.getElementById('return_datetime').addEventListener('change', checkSelectedVehicleAvailability);
 
         document.getElementById('booking-wizard-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (bookingSubmissionInProgress) return;
+
+            bookingSubmissionInProgress = true;
             const alertEl = document.getElementById('booking-alert');
             const submitBtn = document.getElementById('btn-submit-booking');
             alertEl.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Checking availability...';
 
             const pVal = document.getElementById('pickup_datetime').value;
             const rVal = document.getElementById('return_datetime').value;
             const pDate = new Date(pVal);
             const rDate = new Date(rVal);
 
+            if (pDate <= new Date()) {
+                alertEl.textContent = 'Pickup date and time must be in the future.';
+                alertEl.style.display = 'block';
+                bookingSubmissionInProgress = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirm & Submit Reservation Request →';
+                return;
+            }
+
             if (rDate <= pDate) {
                 alertEl.textContent = 'Return date must be strictly after pickup date.';
                 alertEl.style.display = 'block';
+                bookingSubmissionInProgress = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirm & Submit Reservation Request →';
                 return;
             }
 
@@ -491,10 +519,12 @@
             if (!isAvailable) {
                 alertEl.textContent = 'Availability could not be confirmed. Please review the schedule or choose another vehicle.';
                 alertEl.style.display = 'block';
+                bookingSubmissionInProgress = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirm & Submit Reservation Request →';
                 return;
             }
 
-            submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting reservation...';
 
             const pricing = calculatePricing();
@@ -560,6 +590,7 @@
                 if (bookingSaved) {
                     submitBtn.textContent = 'Reservation Saved';
                 } else {
+                    bookingSubmissionInProgress = false;
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Confirm & Submit Reservation Request →';
                 }

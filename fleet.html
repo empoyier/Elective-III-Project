@@ -149,14 +149,26 @@ let availabilityError = '';
 let availabilityRequestId = 0;
 let reviewsByVehicle = new Map();
 
+function formatLocalDateTimeInput(date) {
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return localDate.toISOString().slice(0, 16);
+}
+
 async function loadFleet() {
     initPublicHeader('fleet');
     
     const params = new URLSearchParams(window.location.search);
+    const pickupInput = document.getElementById('filter-pickup');
+    const returnInput = document.getElementById('filter-return');
+    const minimumPickup = new Date();
+    minimumPickup.setSeconds(0, 0);
+    minimumPickup.setMinutes(minimumPickup.getMinutes() + 1);
+    pickupInput.min = formatLocalDateTimeInput(minimumPickup);
     currentCategory = params.get('category') || '';
     if (params.get('search')) document.getElementById('filter-search').value = params.get('search');
-    if (params.get('pickup_datetime')) document.getElementById('filter-pickup').value = params.get('pickup_datetime');
-    if (params.get('return_datetime')) document.getElementById('filter-return').value = params.get('return_datetime');
+    if (params.get('pickup_datetime')) pickupInput.value = params.get('pickup_datetime');
+    if (params.get('return_datetime')) returnInput.value = params.get('return_datetime');
+    returnInput.min = pickupInput.value || pickupInput.min;
 
     try {
         if (!supabaseClient) throw new Error('Supabase client failed to initialize. Check the Supabase script and configuration.');
@@ -216,6 +228,7 @@ function resetFilters() {
     document.getElementById('filter-search').value = '';
     document.getElementById('filter-pickup').value = '';
     document.getElementById('filter-return').value = '';
+    document.getElementById('filter-return').min = document.getElementById('filter-pickup').min;
     unavailableVehicleIds = new Set();
     availabilityError = '';
     document.getElementById('availability-message').textContent = '';
@@ -237,8 +250,8 @@ async function applyFilters() {
         return;
     }
 
-    if (!pickup || !returnDt || new Date(returnDt) <= new Date(pickup)) {
-        availabilityError = 'Enter a valid pickup and return date/time to check vehicle availability.';
+    if (!pickup || !returnDt || new Date(pickup) <= new Date() || new Date(returnDt) <= new Date(pickup)) {
+        availabilityError = 'Choose a future pickup date/time and a return date/time after pickup.';
         message.textContent = availabilityError;
         message.className = 'alert alert-danger';
         renderVehicles();
@@ -343,6 +356,9 @@ function renderVehicles() {
                             <p style="padding:8px 0; border-top:1px solid var(--apex-border-subtle);">
                                 <strong>${Number(review.rating)}/5</strong>
                                 ${review.review_text ? `<br>${sanitize(review.review_text)}` : ''}
+                                <span style="display:block; font-size:11px; color:var(--apex-text-muted); margin-top:4px;">
+                                    Reviewed ${new Date(review.created_at).toLocaleDateString()}
+                                </span>
                             </p>
                         `).join('')}
                     </div>
@@ -409,7 +425,10 @@ document.getElementById('filter-form').addEventListener('submit', (e) => {
     applyFilters();
 });
 
-document.getElementById('filter-pickup').addEventListener('change', applyFilters);
+document.getElementById('filter-pickup').addEventListener('change', () => {
+    document.getElementById('filter-return').min = document.getElementById('filter-pickup').value;
+    applyFilters();
+});
 document.getElementById('filter-return').addEventListener('change', applyFilters);
 
 document.addEventListener('DOMContentLoaded', loadFleet);
