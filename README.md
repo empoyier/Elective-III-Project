@@ -30,3 +30,8 @@ The current frontend does not require build-time environment variables or packag
 - **Admin dashboard:** Manage vehicles (including image uploads), bookings, and customers.
 
 Availability constraints, notifications, reviews, and their database triggers are defined in `database/supabase_schema.sql`. The migration under `database/migrations/` can be used to apply notifications and reviews independently when an existing project's bookings prevent adding the availability constraint.
+
+## Linksss :>
+- Website URL:  https://apex-empoy.vercel.app/
+- Github Repo:  https://github.com/empoyier/Elective-III-Project
+- Supabase:     https://ybwsiaieehefoceueqdl.supabase.cohttps://ybwsiaieehefoceueqdl.supabase.co
