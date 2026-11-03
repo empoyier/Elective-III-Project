@@ -281,6 +281,7 @@
         let addonsList = [];
         let currentUserObj = null;
         let availabilityCheckId = 0;
+        let bookingSubmissionInProgress = false;
 
         function pad(n) { return n < 10 ? '0' + n : n; }
         function toInputDate(d) {
@@ -482,9 +483,14 @@
 
         document.getElementById('booking-wizard-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (bookingSubmissionInProgress) return;
+
+            bookingSubmissionInProgress = true;
             const alertEl = document.getElementById('booking-alert');
             const submitBtn = document.getElementById('btn-submit-booking');
             alertEl.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Checking availability...';
 
             const pVal = document.getElementById('pickup_datetime').value;
             const rVal = document.getElementById('return_datetime').value;
@@ -494,12 +500,18 @@
             if (pDate <= new Date()) {
                 alertEl.textContent = 'Pickup date and time must be in the future.';
                 alertEl.style.display = 'block';
+                bookingSubmissionInProgress = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirm & Submit Reservation Request →';
                 return;
             }
 
             if (rDate <= pDate) {
                 alertEl.textContent = 'Return date must be strictly after pickup date.';
                 alertEl.style.display = 'block';
+                bookingSubmissionInProgress = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirm & Submit Reservation Request →';
                 return;
             }
 
@@ -507,10 +519,12 @@
             if (!isAvailable) {
                 alertEl.textContent = 'Availability could not be confirmed. Please review the schedule or choose another vehicle.';
                 alertEl.style.display = 'block';
+                bookingSubmissionInProgress = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirm & Submit Reservation Request →';
                 return;
             }
 
-            submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting reservation...';
 
             const pricing = calculatePricing();
@@ -576,6 +590,7 @@
                 if (bookingSaved) {
                     submitBtn.textContent = 'Reservation Saved';
                 } else {
+                    bookingSubmissionInProgress = false;
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Confirm & Submit Reservation Request →';
                 }
