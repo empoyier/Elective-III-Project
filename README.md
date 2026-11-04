@@ -48,6 +48,6 @@ This is a demo deployment. The schema I included grants unrestricted anonymous a
 
 ## Links
 
-- Website: https://apex-empoy.vercel.app/
+- Website: https://apex-car-rental-steel.vercel.app/
 - GitHub Repo: https://github.com/empoyier/Elective-III-Project
 - Supabase: https://ybwsiaieehefoceueqdl.supabase.co
